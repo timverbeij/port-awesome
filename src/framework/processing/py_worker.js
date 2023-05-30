@@ -88,7 +88,7 @@ function startPyodide() {
 
 function loadPackages() {
   console.log('[ProcessingWorker] loading packages')
-  return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas'])
+  return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas', 'beautifulsoup4', 'lxml'])
 }
 
 function installPortPackage() {
