@@ -7,14 +7,15 @@ import pandas as pd
 import port.api.props as props
 import port.helpers as helpers
 import port.youtube as youtube
-import port.youtube as validate
+import port.validate as validate
+import port.tiktok as tiktok
 
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 
 LOG_STREAM = io.StringIO()
 
 logging.basicConfig(
-    stream=LOG_STREAM,
+    #stream=LOG_STREAM,
     level=logging.DEBUG,
     format="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
@@ -29,6 +30,7 @@ def process(session_id):
 
     platforms = [
         ("Youtube", extract_youtube, youtube.validate_zip),
+        ("TikTok", extract_tiktok, tiktok.validate_zip),
     ]
 
     # progress in %
@@ -163,7 +165,7 @@ def create_empty_table(platform_name: str) -> props.PropsUIPromptConsentFormTabl
 
 
 ##################################################################
-# Extraction function
+# Extraction functions
 
 def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> list[props.PropsUIPromptConsentFormTable]:
     """
@@ -200,9 +202,23 @@ def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> lis
         tables = create_consent_form_tables("youtube_watch_history", table_title, df) 
         tables_to_render.extend(tables)
 
+    # Extract live chat messages
     df = youtube.my_live_chat_messages_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube my live chat messages", "nl": "Youtube my live chat messages"})
+        tables = create_consent_form_tables("youtube_my_live_chat_messages", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
+
+
+def extract_tiktok(tiktok_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
+    tables_to_render = []
+
+    # Extract video browsing history
+    df = tiktok.video_browsing_history_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok video browsing history", "nl": "Tiktok video browsing history"})
         tables = create_consent_form_tables("youtube_my_live_chat_messages", table_title, df) 
         tables_to_render.extend(tables)
 

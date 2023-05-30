@@ -69,6 +69,7 @@ class ValidateInput:
                 1 if f in category.known_files else 0 for f in file_list_input
             ]
             prop_category[identifier] = sum(n_files_found) / len(category.known_files) * 100
+            logger.debug("propertion of ddp categories: %s", prop_category)
 
         if max(prop_category.values()) >= 5:
             highest = max(prop_category, key=prop_category.get)  # type: ignore
