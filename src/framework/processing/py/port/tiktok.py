@@ -185,6 +185,7 @@ def share_history_to_df(tiktok_zip: str) -> pd.DataFrame:
 
     return out
 
+
 # Extract comments
 def comment_to_df(tiktok_zip: str) -> pd.DataFrame:
 
