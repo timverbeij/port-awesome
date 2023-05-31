@@ -215,11 +215,46 @@ def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> lis
 def extract_tiktok(tiktok_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
 
-    # Extract video browsing history
     df = tiktok.video_browsing_history_to_df(tiktok_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok video browsing history", "nl": "Tiktok video browsing history"})
-        tables = create_consent_form_tables("youtube_my_live_chat_messages", table_title, df) 
+        tables = create_consent_form_tables("tiktok_video_browsing_history", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = tiktok.favorite_videos_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok favorite videos", "nl": "Tiktok favorite videos"})
+        tables = create_consent_form_tables("tiktok_favorite_videos", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = tiktok.following_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok following", "nl": "Tiktok following"})
+        tables = create_consent_form_tables("tiktok_following", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = tiktok.like_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok likes", "nl": "Tiktok likes"})
+        tables = create_consent_form_tables("tiktok_like", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = tiktok.search_history_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok search history", "nl": "Tiktok search history"})
+        tables = create_consent_form_tables("tiktok_search_history", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = tiktok.share_history_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok share history", "nl": "Tiktok share history"})
+        tables = create_consent_form_tables("tiktok_share_history", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = tiktok.comment_to_df(tiktok_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok comment history", "nl": "Tiktok comment history"})
+        tables = create_consent_form_tables("tiktok_comment", table_title, df) 
         tables_to_render.extend(tables)
 
     return tables_to_render
