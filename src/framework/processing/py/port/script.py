@@ -9,6 +9,8 @@ import port.helpers as helpers
 import port.youtube as youtube
 import port.validate as validate
 import port.tiktok as tiktok
+import port.twitter as twitter
+import port.facebook as facebook
 
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 
@@ -29,8 +31,10 @@ def process(session_id):
     yield donate_logs(f"{session_id}-tracking")
 
     platforms = [
+        ("Facebook", extract_facebook, facebook.validate_zip),
         ("Youtube", extract_youtube, youtube.validate_zip),
         ("TikTok", extract_tiktok, tiktok.validate_zip),
+        ("Twitter", extract_twitter, twitter.validate_zip),
     ]
 
     # progress in %
@@ -255,6 +259,90 @@ def extract_tiktok(tiktok_zip: str, _) -> list[props.PropsUIPromptConsentFormTab
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok comment history", "nl": "Tiktok comment history"})
         tables = create_consent_form_tables("tiktok_comment", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
+
+
+def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
+    tables_to_render = []
+
+    df = twitter.following_to_df(twitter_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Twitter following", "nl": "Twitter following"})
+        tables = create_consent_form_tables("twitter_following", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = twitter.like_to_df(twitter_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Twitter likes", "nl": "Twitter likes"})
+        tables = create_consent_form_tables("twitter_like", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = twitter.tweets_to_df(twitter_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Twitter tweets", "nl": "Twitter tweets"})
+        tables = create_consent_form_tables("twitter_tweets", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = twitter.user_link_clicks_to_df(twitter_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Twitter user link clicks", "nl": "Twitter user link clicks"})
+        tables = create_consent_form_tables("twitter_user_link_clicks", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
+
+
+def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
+    tables_to_render = []
+
+    df = facebook.group_interactions_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook group interactions", "nl": "Facebook group interactions"})
+        tables = create_consent_form_tables("facebook_group_interactions", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.comments_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook comments", "nl": "Facebook comments"})
+        tables = create_consent_form_tables("facebook_comments", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.likes_and_reactions_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook likes and reactions", "nl": "Facebook likes and reactions"})
+        tables = create_consent_form_tables("facebook_likes_and_reactions", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.your_badges_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook your badges", "nl": "Facebook your badges"})
+        tables = create_consent_form_tables("facebook_your_badges", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.your_posts_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook your posts", "nl": "Facebook your posts"})
+        tables = create_consent_form_tables("facebook_your_posts", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.your_search_history_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook your searh history", "nl": "Facebook your search history"})
+        tables = create_consent_form_tables("facebook_your_search_history", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.recently_viewed_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook recently viewed", "nl": "Facebook recently viewed"})
+        tables = create_consent_form_tables("facebook_recently_viewed", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.recently_visited_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook recently visited", "nl": "Facebook recently visited"})
+        tables = create_consent_form_tables("facebook_recently_visited", table_title, df) 
         tables_to_render.extend(tables)
 
     return tables_to_render
