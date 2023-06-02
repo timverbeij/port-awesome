@@ -11,6 +11,7 @@ import port.validate as validate
 import port.tiktok as tiktok
 import port.twitter as twitter
 import port.facebook as facebook
+import port.chrome as chrome
 
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 
@@ -31,6 +32,7 @@ def process(session_id):
     yield donate_logs(f"{session_id}-tracking")
 
     platforms = [
+        ("Chrome", extract_chrome, chrome.validate_zip),
         ("Facebook", extract_facebook, facebook.validate_zip),
         ("Youtube", extract_youtube, youtube.validate_zip),
         ("TikTok", extract_tiktok, tiktok.validate_zip),
@@ -347,6 +349,29 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
 
     return tables_to_render
 
+
+def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
+    tables_to_render = []
+
+    df = chrome.browser_history_to_df(chrome_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Chrome browser history", "nl": "Chrome browser history"})
+        tables = create_consent_form_tables("chrome_browser_history", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = chrome.bookmarks_to_df(chrome_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Chrome bookmarks", "nl": "Chrome bookmarks"})
+        tables = create_consent_form_tables("chrome_bookmarks", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = chrome.omnibox_to_df(chrome_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Chrome omnibox", "nl": "Chrome omnibox"})
+        tables = create_consent_form_tables("chrome_omnibox", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
 
 
 ##########################################
