@@ -185,10 +185,9 @@ def following_to_df(twitter_zip: str) -> pd.DataFrame:
     try:
         for item in ld:
             datapoints.append((
-                item.get("following", {}).get("accountId", None),
                 item.get("following", {}).get("userLink", None)
             ))
-        out = pd.DataFrame(datapoints, columns=["Account Id", "User Link"])
+        out = pd.DataFrame(datapoints, columns=["Link to user"])
     except Exception as e:
         logger.error("Exception was caught: %s", e)
 
@@ -214,6 +213,7 @@ def like_to_df(twitter_zip: str) -> pd.DataFrame:
                 item.get("like", {}).get("fullText", None)
             ))
         out = pd.DataFrame(datapoints, columns=["Tweet Id", "Tweet"])
+        out["Tweet Id"] = "https://twitter.com/a/status/" + out["Tweet Id"]
     except Exception as e:
         logger.error("Exception was caught: %s", e)
 
@@ -264,6 +264,7 @@ def user_link_clicks_to_df(twitter_zip: str) -> pd.DataFrame:
                 item.get("userInteractionsData", {}).get("linkClick", {}).get("tweetId", None),
             ))
         out = pd.DataFrame(datapoints, columns=["Date", "Url", "Tweet Id"])
+        out["Tweet Id"] = "https://twitter.com/a/status/" + out["Tweet Id"]
     except Exception as e:
         logger.error("Exception was caught: %s", e)
 

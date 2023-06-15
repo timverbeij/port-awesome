@@ -195,7 +195,7 @@ def comment_to_df(tiktok_zip: str) -> pd.DataFrame:
     out = pd.DataFrame()
 
     try: 
-        history = d["Activity"]["Comment"]["Comments"].get("CommentsList", [])
+        history = d["Comment"]["Comments"].get("CommentsList", [])
         for item in history:
             datapoints.append((
                 item.get("Date", None), 
