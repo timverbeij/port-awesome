@@ -5,6 +5,7 @@ import logging
 import re
 
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -242,3 +243,18 @@ def dict_denester(
         new.update({name[1:]: inp})  # type: ignore
 
     return new  # type: ignore
+
+
+def sort_isotimestamp_empty_timestamp_last(timestamp_series: pd.Series) -> pd.Series:
+    def convert_timestamp(timestamp):
+        out = np.inf
+        try:
+            if isinstance(timestamp, str) and len(timestamp) > 0:
+                dt = datetime.fromisoformat(timestamp)
+                out = -dt.timestamp()
+        except Exception as e:
+            logger.debug("Cannot convert timestamp: %s", e)
+
+        return out
+
+    return timestamp_series.apply(convert_timestamp)

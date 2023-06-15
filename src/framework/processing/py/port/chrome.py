@@ -78,9 +78,6 @@ def validate_zip(zfile: Path) -> ValidateInput:
 
     return validate
 
-# TODO
-# Extract Omnibox
-
 
 # Extract BrowserHistory
 def browser_history_to_df(chrome_zip: str) -> pd.DataFrame:
@@ -151,6 +148,7 @@ def omnibox_to_df(chrome_zip: str) -> pd.DataFrame:
             ))
 
         out = pd.DataFrame(datapoints, columns=["Title", "Number of visits", "Url"])
+        out = out.sort_values(by="Number of visits", ascending=False)
     except Exception as e:
         logger.error("Exception caught: %s", e)
 

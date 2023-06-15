@@ -191,6 +191,11 @@ def watch_later_to_df(youtube_zip: str) -> pd.DataFrame:
     ratings_bytes = io.BytesIO(re.sub(b'(.*)\n(.*)\n\n', b'', ratings_bytes.read()))
 
     df = unzipddp.read_csv_from_bytes_to_df(ratings_bytes)
+    try:
+        df['Video-ID'] = 'https://www.youtube.com/watch?v=' + df['Video-ID']
+    except Exception as e:
+        logger.debug("Exception was caught:  %s", e)
+
     return df
 
 

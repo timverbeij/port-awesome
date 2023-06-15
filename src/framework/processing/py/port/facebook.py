@@ -143,6 +143,7 @@ def group_interactions_to_df(youtube_zip: str) -> pd.DataFrame:
                 item.get("data", {}).get("uri", None)
             ))
         out = pd.DataFrame(datapoints, columns=["Group name", "Times Interacted", "Group Link"])
+        out = out.sort_values(by="Times Interacted", ascending=False)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -210,9 +211,11 @@ def your_badges_to_df(youtube_zip: str) -> pd.DataFrame:
         for k, v in d["group_badges_v2"].items():
             datapoints.append((
                 k,
-                ', '.join(v)
+                ', '.join(v),
+                len(v)
             ))
-        out = pd.DataFrame(datapoints, columns=["Group name", "Badges"])
+        out = pd.DataFrame(datapoints, columns=["Group name", "Badges", "Number of badges"])
+        out = out.sort_values(by="Number of badges", ascending=False)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -273,10 +276,11 @@ def your_posts_to_df(youtube_zip: str) -> pd.DataFrame:
             datapoints.append((
                 find_items(denested_dict, "title"),
                 find_items(denested_dict, "post"),
-                helpers.epoch_to_iso(find_items(denested_dict, "timestamp"))
+                helpers.epoch_to_iso(find_items(denested_dict, "timestamp")),
+                find_items(denested_dict, "url"),
             ))
 
-        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date"])
+        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date", "Url"])
     except Exception as e:
         logger.error("Exception caught: %s", e)
 
@@ -305,7 +309,6 @@ def your_search_history_to_df(youtube_zip: str) -> pd.DataFrame:
         logger.error("Exception caught: %s", e)
 
     return out
-
 
 
 def recently_viewed_to_df(youtube_zip: str) -> pd.DataFrame:
@@ -340,6 +343,8 @@ def recently_viewed_to_df(youtube_zip: str) -> pd.DataFrame:
                         ))
 
         out = pd.DataFrame(datapoints, columns=["Watched", "Name", "Link", "Date"])
+        out = out.sort_values(by="Date", key=helpers.sort_isotimestamp_empty_timestamp_last)
+
     except Exception as e:
         logger.error("Exception caught: %s", e)
 
@@ -366,6 +371,8 @@ def recently_visited_to_df(youtube_zip: str) -> pd.DataFrame:
                         helpers.epoch_to_iso(entry.get("timestamp"))
                     ))
         out = pd.DataFrame(datapoints, columns=["Watched", "Name", "Link", "Date"])
+        out = out.sort_values(by="Date", key=helpers.sort_isotimestamp_empty_timestamp_last)
+        
     except Exception as e:
         logger.error("Exception caught: %s", e)
 
