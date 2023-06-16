@@ -293,6 +293,18 @@ def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormT
         tables = create_consent_form_tables("twitter_user_link_clicks", table_title, df) 
         tables_to_render.extend(tables)
 
+    df = twitter.block_to_df(twitter_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Twitter block", "nl": "Twitter block"})
+        tables = create_consent_form_tables("twitter_block", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = twitter.mute_to_df(twitter_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Twitter mute", "nl": "Twitter mute"})
+        tables = create_consent_form_tables("twitter_mute", table_title, df) 
+        tables_to_render.extend(tables)
+
     return tables_to_render
 
 

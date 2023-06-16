@@ -269,3 +269,49 @@ def user_link_clicks_to_df(twitter_zip: str) -> pd.DataFrame:
         logger.error("Exception was caught: %s", e)
 
     return out
+
+
+def block_to_df(twitter_zip: str) -> pd.DataFrame:
+    """
+    block.js
+    """
+
+    datapoints = []
+    out = pd.DataFrame()
+
+    b = unzipddp.extract_file_from_zip(twitter_zip, "block.js")
+    ld = bytesio_to_listdict(b)
+
+    try:
+        for item in ld:
+            datapoints.append((
+                item.get("blocking", {}).get("userLink", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Blocked users"])
+    except Exception as e:
+        logger.error("Exception was caught: %s", e)
+
+    return out
+
+
+def mute_to_df(twitter_zip: str) -> pd.DataFrame:
+    """
+    mute.js
+    """
+
+    datapoints = []
+    out = pd.DataFrame()
+
+    b = unzipddp.extract_file_from_zip(twitter_zip, "block.js")
+    ld = bytesio_to_listdict(b)
+
+    try:
+        for item in ld:
+            datapoints.append((
+                item.get("muting", {}).get("userLink", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Muted users"])
+    except Exception as e:
+        logger.error("Exception was caught: %s", e)
+
+    return out
