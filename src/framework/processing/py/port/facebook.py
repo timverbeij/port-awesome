@@ -126,9 +126,9 @@ def validate_zip(zfile: Path) -> ValidateInput:
     return validate
 
 
-def group_interactions_to_df(youtube_zip: str) -> pd.DataFrame:
+def group_interactions_to_df(facebook_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(youtube_zip, "group_interactions.json")
+    b = unzipddp.extract_file_from_zip(facebook_zip, "group_interactions.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -151,9 +151,9 @@ def group_interactions_to_df(youtube_zip: str) -> pd.DataFrame:
     return out
 
 
-def comments_to_df(youtube_zip: str) -> pd.DataFrame:
+def comments_to_df(facebook_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(youtube_zip, "comments.json")
+    b = unzipddp.extract_file_from_zip(facebook_zip, "comments.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -176,9 +176,9 @@ def comments_to_df(youtube_zip: str) -> pd.DataFrame:
 
 
 
-def likes_and_reactions_to_df(youtube_zip: str) -> pd.DataFrame:
+def likes_and_reactions_to_df(facebook_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(youtube_zip, "likes_and_reactions_1.json")
+    b = unzipddp.extract_file_from_zip(facebook_zip, "likes_and_reactions_1.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -199,9 +199,9 @@ def likes_and_reactions_to_df(youtube_zip: str) -> pd.DataFrame:
     return out
 
 
-def your_badges_to_df(youtube_zip: str) -> pd.DataFrame:
+def your_badges_to_df(facebook_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(youtube_zip, "your_badges.json")
+    b = unzipddp.extract_file_from_zip(facebook_zip, "your_badges.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -260,9 +260,9 @@ def find_items(d: dict[Any, Any],  key_to_match: str) -> str:
             
 
 
-def your_posts_to_df(youtube_zip: str) -> pd.DataFrame:
+def your_posts_to_df(facebook_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(youtube_zip, "your_posts_1.json")
+    b = unzipddp.extract_file_from_zip(facebook_zip, "your_posts_1.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -288,9 +288,9 @@ def your_posts_to_df(youtube_zip: str) -> pd.DataFrame:
 
 
 
-def your_search_history_to_df(youtube_zip: str) -> pd.DataFrame:
+def your_search_history_to_df(facebook_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(youtube_zip, "your_search_history.json")
+    b = unzipddp.extract_file_from_zip(facebook_zip, "your_search_history.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -311,8 +311,8 @@ def your_search_history_to_df(youtube_zip: str) -> pd.DataFrame:
     return out
 
 
-def recently_viewed_to_df(youtube_zip: str) -> pd.DataFrame:
-    b = unzipddp.extract_file_from_zip(youtube_zip, "recently_viewed.json")
+def recently_viewed_to_df(facebook_zip: str) -> pd.DataFrame:
+    b = unzipddp.extract_file_from_zip(facebook_zip, "recently_viewed.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -352,8 +352,8 @@ def recently_viewed_to_df(youtube_zip: str) -> pd.DataFrame:
 
 
 
-def recently_visited_to_df(youtube_zip: str) -> pd.DataFrame:
-    b = unzipddp.extract_file_from_zip(youtube_zip, "recently_visited.json")
+def recently_visited_to_df(facebook_zip: str) -> pd.DataFrame:
+    b = unzipddp.extract_file_from_zip(facebook_zip, "recently_visited.json")
     d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
@@ -371,6 +371,60 @@ def recently_visited_to_df(youtube_zip: str) -> pd.DataFrame:
                         helpers.epoch_to_iso(entry.get("timestamp"))
                     ))
         out = pd.DataFrame(datapoints, columns=["Watched", "Name", "Link", "Date"])
+        out = out.sort_values(by="Date", key=helpers.sort_isotimestamp_empty_timestamp_last)
+        
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+
+    return out
+
+
+def feed_to_df(facebook_zip: str) -> pd.DataFrame:
+    b = unzipddp.extract_file_from_zip(facebook_zip, "feed.json")
+    d = unzipddp.read_json_from_bytes(b)
+
+    out = pd.DataFrame()
+    datapoints = []
+
+    try:
+        items = d["people_and_friends_v2"]
+        for item in items:
+            if "entries" in item:
+                for entry in item["entries"]:
+                    datapoints.append((
+                        item.get("name", ""),
+                        entry.get("data", {}).get("name", ""),
+                        entry.get("data", {}).get("uri", ""),
+                        helpers.epoch_to_iso(entry.get("timestamp"))
+                    ))
+        out = pd.DataFrame(datapoints, columns=["Category", "Name", "Link", "Date"])
+        out = out.sort_values(by="Date", key=helpers.sort_isotimestamp_empty_timestamp_last)
+        
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+
+    return out
+
+
+def controls_to_df(facebook_zip: str) -> pd.DataFrame:
+    b = unzipddp.extract_file_from_zip(facebook_zip, "controls.json")
+    d = unzipddp.read_json_from_bytes(b)
+
+    out = pd.DataFrame()
+    datapoints = []
+
+    try:
+        items = d["controls"]
+        for item in items:
+            if "entries" in item:
+                for entry in item["entries"]:
+                    datapoints.append((
+                        item.get("name", ""),
+                        entry.get("data", {}).get("name", ""),
+                        entry.get("data", {}).get("uri", ""),
+                        helpers.epoch_to_iso(entry.get("timestamp"))
+                    ))
+        out = pd.DataFrame(datapoints, columns=["Category", "Name", "Link", "Date"])
         out = out.sort_values(by="Date", key=helpers.sort_isotimestamp_empty_timestamp_last)
         
     except Exception as e:
