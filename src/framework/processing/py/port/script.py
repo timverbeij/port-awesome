@@ -359,6 +359,18 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
         tables = create_consent_form_tables("facebook_recently_visited", table_title, df) 
         tables_to_render.extend(tables)
 
+    df = facebook.feed_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook feed", "nl": "Facebook feed"})
+        tables = create_consent_form_tables("facebook_feed", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = facebook.controls_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook controls", "nl": "Facebook controls"})
+        tables = create_consent_form_tables("facebook_controls", table_title, df) 
+        tables_to_render.extend(tables)
+
     return tables_to_render
 
 
