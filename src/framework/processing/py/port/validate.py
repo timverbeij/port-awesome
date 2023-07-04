@@ -65,6 +65,18 @@ class ValidateInput:
     ddp_categories_lookup: dict[str, DDPCategory] = field(init=False)
     status_codes_lookup: dict[int, StatusCode] = field(init=False)
 
+    def set_status_code(self, id: int) -> None:
+        """
+        Set the status code according to a StatusCode id
+        """
+        self.status_code = self.status_codes_lookup[id]
+
+    def set_ddp_category(self, id: str) -> None:
+        """
+        Set the ddp_category code according to a DDPCategory id
+        """
+        self.ddp_category = self.ddp_categories_lookup[id]
+
     def infer_ddp_category(self, file_list_input: list[str]) -> bool:
         """
         Compares a list of filenames to a list of known filenames.
@@ -88,18 +100,6 @@ class ValidateInput:
 
         logger.info("Not a valid input; not enough files matched when performing input validation")
         return False
-
-    def set_status_code(self, id: int) -> None:
-        """
-        Set the status code according to a StatusCode id
-        """
-        self.status_code = self.status_codes_lookup.get(id, None)
-
-    def set_ddp_category(self, id: str) -> None:
-        """
-        Set the ddp_category code according to a DDPCategory id
-        """
-        self.ddp_category = self.ddp_categories_lookup.get(id, None)
 
     def __post_init__(self) -> None:
         for status_code, ddp_category in zip(self.status_codes, self.ddp_categories):
