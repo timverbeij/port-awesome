@@ -20,6 +20,7 @@ class DDPFiletype(Enum):
     JSON = 1
     HTML = 2
     CSV = 3
+    TXT = 4
 
 
 @dataclass
@@ -27,16 +28,16 @@ class DDPCategory:
     """
     Characteristics that characterize a DDP
     """
-    id: str
-    ddp_filetype: DDPFiletype
-    language: Language
-    known_files: list[str]
+    id: str | None = None
+    ddp_filetype: DDPFiletype | None = None
+    language: Language | None = None
+    known_files: list[str] | None = None
 
 
 @dataclass
 class StatusCode:
     """
-    Can be used to set a status
+    Can be used to set a DDP status
     """
     id: int
     description: str
@@ -47,19 +48,27 @@ class StatusCode:
 class ValidateInput:
     """
     Class containing the results of input validation
+
+    A validation class to store the result of the validation
+
+    status_codes: a list of all StatusCode's that are possible for a specific platform
+    ddp_categories: a list of all DDPCategory's that are possible for a specific platform
+    status_code: the status code of a submission after validation
+    ddp_category: the inferred DDP category after validation
     """
 
     status_codes: list[StatusCode]
     ddp_categories: list[DDPCategory]
-    status_code: StatusCode | None = None
-    ddp_category: DDPCategory | None = None
+    status_code: StatusCode = StatusCode(-1, description="DDP not validated", message="")
+    ddp_category: DDPCategory = DDPCategory()
 
     ddp_categories_lookup: dict[str, DDPCategory] = field(init=False)
     status_codes_lookup: dict[int, StatusCode] = field(init=False)
 
     def infer_ddp_category(self, file_list_input: list[str]) -> bool:
         """
-        Compares a list of files to a list of known files.
+        Compares a list of filenames to a list of known filenames.
+
         From that comparison infer the DDP Category
         Note: at least 5% percent of known files should match
         """
@@ -80,11 +89,17 @@ class ValidateInput:
         logger.info("Not a valid input; not enough files matched when performing input validation")
         return False
 
-    def set_status_code(self, code: int) -> None:
+    def set_status_code(self, id: int) -> None:
         """
-        Set the status code
+        Set the status code according to a StatusCode id
         """
-        self.status_code = self.status_codes_lookup.get(code, None)
+        self.status_code = self.status_codes_lookup.get(id, None)
+
+    def set_ddp_category(self, id: str) -> None:
+        """
+        Set the ddp_category code according to a DDPCategory id
+        """
+        self.ddp_category = self.ddp_categories_lookup.get(id, None)
 
     def __post_init__(self) -> None:
         for status_code, ddp_category in zip(self.status_codes, self.ddp_categories):

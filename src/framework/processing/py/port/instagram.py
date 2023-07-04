@@ -72,18 +72,20 @@ DDP_CATEGORIES = [
 ]
 
 STATUS_CODES = [
-    StatusCode(id=0, description="Valid zip", message="Valid zip"),
-    StatusCode(id=1, description="Bad zipfile", message="Bad zipfile"),
+    StatusCode(id=0, description="Valid DDP", message="Valid DDP"),
+    StatusCode(id=1, description="Not a valid DDP", message="Not a valid DDP"),
+    StatusCode(id=2, description="Bad zipfile", message="Bad zip"),
 ]
 
 
-
-def validate_zip(zfile: Path) -> ValidateInput:
+def validate(zfile: Path) -> ValidateInput:
     """
     Validates the input of an Instagram zipfile
+
+    This function should set and return a validation object
     """
 
-    validate = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
+    validation = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
 
     try:
         paths = []
@@ -94,13 +96,16 @@ def validate_zip(zfile: Path) -> ValidateInput:
                     logger.debug("Found: %s in zip", p.name)
                     paths.append(p.name)
 
-        validate.set_status_code(0)
-        validate.infer_ddp_category(paths)
+        validation.infer_ddp_category(paths)
+        if validation.ddp_category.id is not None:
+            validation.set_status_code(0)
+        else:
+            validation.set_status_code(1)
+
     except zipfile.BadZipFile:
-        validate.set_status_code(1)
+        validation.set_status_code(2)
 
-    return validate
-
+    return validation
 
 
 def accounts_not_interested_in_to_df(instagram_zip: str) -> pd.DataFrame:
@@ -132,7 +137,6 @@ def accounts_not_interested_in_to_df(instagram_zip: str) -> pd.DataFrame:
         logger.error("Exception caught: %s", e)
 
     return out
-
 
 
 def ads_viewed_to_df(instagram_zip: str) -> pd.DataFrame:
