@@ -302,7 +302,7 @@ def mute_to_df(twitter_zip: str) -> pd.DataFrame:
     datapoints = []
     out = pd.DataFrame()
 
-    b = unzipddp.extract_file_from_zip(twitter_zip, "block.js")
+    b = unzipddp.extract_file_from_zip(twitter_zip, "mute.js")
     ld = bytesio_to_listdict(b)
 
     try:
