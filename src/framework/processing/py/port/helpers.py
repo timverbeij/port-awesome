@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any
 import warnings
+import math
 import logging
 import re
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 REGEX_ISO8601_FULL = r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
 REGEX_ISO8601_DATE = r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])$"
+
 
 def split_dataframe(df: pd.DataFrame, row_count: int) -> list[pd.DataFrame]:
     """
@@ -143,13 +145,13 @@ def is_epoch(datetime_int: list[int] | list[str], check_minimum: int) -> bool:
 def epoch_to_iso(epoch_timestamp: str | int) -> str:
     """
     Convert epoch timestamp to an ISO 8601 string. Assumes UTC.
-
-    If timestamp cannot be converted raise CannotConvertEpochTimestamp
     """
+
     out = str(epoch_timestamp)
     try:
         epoch_timestamp = int(epoch_timestamp)
         out = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc).isoformat()
+        print(f"TIMESTAMP: {out}")
     except (OverflowError, OSError, ValueError, TypeError) as e:
         logger.error("Could not convert epoch time timestamp, %s", e)
 
@@ -245,7 +247,51 @@ def dict_denester(
     return new  # type: ignore
 
 
+
+def find_items(d: dict[Any, Any],  key_to_match: str) -> str:
+    """
+    d is a denested dict
+    match all keys in d that contain key_to_match
+
+    return the value beloning to that key that is the least nested
+    In case of no match return empty string
+
+    example:
+    key_to_match = asd
+
+    asd-asd-asd-asd-asd-asd: 1
+    asd-asd: 2
+    qwe: 3
+
+    returns 2
+
+    This function is needed because your_posts_1.json contains a wide variety of nestedness per post
+    """
+    out = ""
+    pattern = r"{}".format(f"^.*{key_to_match}.*$")
+    depth = math.inf
+
+    try:
+        for k, v in d.items():
+            if re.match(pattern, k):
+                depth_current_match = k.count("-")
+                if depth_current_match < depth:
+                    depth = depth_current_match
+                    out = str(v)
+    except Exception as e:
+        logger.error("bork bork: %s", e)
+
+    return out
+
+
+
 def sort_isotimestamp_empty_timestamp_last(timestamp_series: pd.Series) -> pd.Series:
+    """
+    Can be used as follows:
+
+    df = df.sort_values(by="Date", key=sort_isotimestamp_empty_timestamp_last)
+    """
+
     def convert_timestamp(timestamp):
         out = np.inf
         try:
@@ -258,3 +304,21 @@ def sort_isotimestamp_empty_timestamp_last(timestamp_series: pd.Series) -> pd.Se
         return out
 
     return timestamp_series.apply(convert_timestamp)
+
+
+
+def fix_latin1_string(input: str) -> str:
+    """
+    Fixes the string encoding by attempting to encode it using the 'latin1' encoding and then decoding it.
+
+    Args:
+        input (str): The input string that needs to be fixed.
+
+    Returns:
+        str: The fixed string after encoding and decoding, or the original string if an exception occurs.
+    """
+    try:
+        fixed_string = input.encode("latin1").decode()
+        return fixed_string
+    except Exception:
+        return input

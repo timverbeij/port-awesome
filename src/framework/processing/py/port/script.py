@@ -12,6 +12,7 @@ import port.tiktok as tiktok
 import port.twitter as twitter
 import port.facebook as facebook
 import port.chrome as chrome
+import port.instagram as instagram
 
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 
@@ -32,6 +33,7 @@ def process(session_id):
     yield donate_logs(f"{session_id}-tracking")
 
     platforms = [
+        ("Instagram", extract_instagram, instagram.validate_zip),
         ("Chrome", extract_chrome, chrome.validate_zip),
         ("Facebook", extract_facebook, facebook.validate_zip),
         ("Youtube", extract_youtube, youtube.validate_zip),
@@ -396,6 +398,68 @@ def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTab
         tables_to_render.extend(tables)
 
     return tables_to_render
+
+
+def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
+    tables_to_render = []
+
+    df = instagram.accounts_not_interested_in_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram accounts not interested in", "nl": "Instagram accounts not interested in"})
+        tables = create_consent_form_tables("instagram_accounts_not_interested_in", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.ads_viewed_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram ads viewed", "nl": "Instagram ads viewed"})
+        tables = create_consent_form_tables("instagram_ads_viewed", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.posts_viewed_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram posts viewed", "nl": "Instagram posts viewed"})
+        tables = create_consent_form_tables("instagram_posts_viewed", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.posts_not_interested_in_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram posts not interested in", "nl": "Instagram posts not interested in"})
+        tables = create_consent_form_tables("instagram_posts_not_interested_in", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.videos_watched_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram videos_watched", "nl": "Instagram posts videos_watched"})
+        tables = create_consent_form_tables("instagram_videos_watched", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.post_comments_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram post_comments", "nl": "Instagram posts post_comments"})
+        tables = create_consent_form_tables("instagram_post_comments", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.following_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram following", "nl": "Instagram posts following"})
+        tables = create_consent_form_tables("instagram_following", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.liked_comments_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram liked_comments", "nl": "Instagram posts liked_comments"})
+        tables = create_consent_form_tables("instagram_liked_comments", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = instagram.liked_posts_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Instagram liked_posts", "nl": "Instagram posts liked_posts"})
+        tables = create_consent_form_tables("instagram_liked_posts", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
+
+
 
 
 ##########################################
