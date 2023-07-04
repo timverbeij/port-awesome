@@ -3,6 +3,7 @@ DDP tiktok module
 """
 
 from pathlib import Path
+from typing import Any
 import logging
 import zipfile
 
@@ -27,42 +28,71 @@ DDP_CATEGORIES = [
         known_files=[
             "user_data.json"
         ],
+    ),
+    DDPCategory(
+        id="text_file_json_en",
+        ddp_filetype=DDPFiletype.JSON,
+        language=Language.EN,
+        known_files=[
+            "user_data.json"
+        ],
     )
 ]
 
 STATUS_CODES = [
-    StatusCode(id=0, description="Valid zip", message="Valid zip"),
-    StatusCode(id=1, description="Bad zipfile", message="Bad zipfile"),
+    StatusCode(id=0, description="Valid DDP", message=""),
+    StatusCode(id=1, description="Not a valid DDP", message=""),
+    StatusCode(id=2, description="Bad zip", message=""),
 ]
 
-def validate_zip(zfile: Path) -> ValidateInput:
+def validate(file: Path) -> ValidateInput:
     """
-    Validates the input of an Instagram zipfile
+    Validates the input of a TikTok submission
     """
 
-    validate = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
+    validation = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
 
+    # submission was a zipfile
     try:
         paths = []
-        with zipfile.ZipFile(zfile, "r") as zf:
+        with zipfile.ZipFile(file, "r") as zf:
             for f in zf.namelist():
                 p = Path(f)
                 if p.suffix in (".json"):
                     logger.debug("Found: %s in zip", p.name)
                     paths.append(p.name)
 
-        validate.set_status_code(0)
-        validate.infer_ddp_category(paths)
-    except zipfile.BadZipFile:
-        validate.set_status_code(1)
+        validation.infer_ddp_category(paths)
+        if validation.ddp_category.id is None:
+            validation.set_status_code(1)
+        else: 
+            validation.set_status_code(0)
 
-    return validate
+    # submission was something else
+    except zipfile.BadZipFile:
+        if file == "user_data.json":
+            validation.set_ddp_category("text_file_json_en")
+            validation.set_status_code(0)
+        else:
+            validation.set_status_code(2)
+
+    return validation
+
+
+
+def read_tiktok_file(tiktok_file: str, validation: ValidateInput) -> dict[Any, Any] | list[Any]:
+    if validation.ddp_category.id == "text_file_json_en":
+        out = unzipddp.read_json_from_file(tiktok_file)
+    else:
+        buf = unzipddp.extract_file_from_zip(tiktok_file, "user_data.json")
+        out = unzipddp.read_json_from_bytes(buf)
+    return out
+
 
    
-def video_browsing_history_to_df(tiktok_zip: str) -> pd.DataFrame:
+def video_browsing_history_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 
@@ -79,10 +109,9 @@ def video_browsing_history_to_df(tiktok_zip: str) -> pd.DataFrame:
 
 
 # Extract Favorite videos
-def favorite_videos_to_df(tiktok_zip: str) -> pd.DataFrame:
+def favorite_videos_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 
@@ -99,10 +128,9 @@ def favorite_videos_to_df(tiktok_zip: str) -> pd.DataFrame:
 
 
 # Extract following
-def following_to_df(tiktok_zip: str) -> pd.DataFrame:
+def following_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 
@@ -119,10 +147,9 @@ def following_to_df(tiktok_zip: str) -> pd.DataFrame:
 
 
 # Extract like VideoList
-def like_to_df(tiktok_zip: str) -> pd.DataFrame:
+def like_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 
@@ -139,10 +166,9 @@ def like_to_df(tiktok_zip: str) -> pd.DataFrame:
 
 
 # Extract searchers
-def search_history_to_df(tiktok_zip: str) -> pd.DataFrame:
+def search_history_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 
@@ -162,10 +188,9 @@ def search_history_to_df(tiktok_zip: str) -> pd.DataFrame:
 
 
 # Extract share history
-def share_history_to_df(tiktok_zip: str) -> pd.DataFrame:
+def share_history_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 
@@ -187,10 +212,9 @@ def share_history_to_df(tiktok_zip: str) -> pd.DataFrame:
 
 
 # Extract comments
-def comment_to_df(tiktok_zip: str) -> pd.DataFrame:
+def comment_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
-    buf = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    d = unzipddp.read_json_from_bytes(buf)
+    d = read_tiktok_file(tiktok_zip, validation)
     datapoints = []
     out = pd.DataFrame()
 

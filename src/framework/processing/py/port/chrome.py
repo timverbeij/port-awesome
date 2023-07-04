@@ -46,12 +46,13 @@ DDP_CATEGORIES = [
 
 
 STATUS_CODES = [
-    StatusCode(id=0, description="Valid zip", message="Valid zip"),
-    StatusCode(id=1, description="Bad zipfile", message="Bad zipfile"),
+    StatusCode(id=0, description="Valid zip", message=""),
+    StatusCode(id=1, description="Not a valid DDP", message=""),
+    StatusCode(id=2, description="Bad zipfile", message=""),
 ]
 
 
-def validate_zip(zfile: Path) -> ValidateInput:
+def validate(zfile: Path) -> ValidateInput:
     """
     Validates the input of an Youtube zipfile
 
@@ -60,7 +61,7 @@ def validate_zip(zfile: Path) -> ValidateInput:
     I dont like this design myself, but I also havent found any alternatives that are better
     """
 
-    validate = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
+    validation = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
 
     try:
         paths = []
@@ -71,12 +72,16 @@ def validate_zip(zfile: Path) -> ValidateInput:
                     logger.debug("Found: %s in zip", p.name)
                     paths.append(p.name)
 
-        validate.set_status_code(0)
-        validate.infer_ddp_category(paths)
-    except zipfile.BadZipFile:
-        validate.set_status_code(1)
+        validation.infer_ddp_category(paths)
+        if validation.ddp_category.id is None:
+            validation.set_status_code(1)
+        else:
+            validation.set_status_code(0)
 
-    return validate
+    except zipfile.BadZipFile:
+        validation.set_status_code(2)
+
+    return validation
 
 
 # Extract BrowserHistory
