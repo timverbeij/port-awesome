@@ -195,8 +195,9 @@ def watch_later_to_df(youtube_zip: str) -> pd.DataFrame:
 
     ratings_bytes = unzipddp.extract_file_from_zip(youtube_zip, "Watch later.csv")
 
-    # remove the first csv from the .csv
-    ratings_bytes = io.BytesIO(re.sub(b'(.*)\n(.*)\n\n', b'', ratings_bytes.read()))
+    # remove the first 3 lines from the .csv
+    #ratings_bytes = io.BytesIO(re.sub(b'^(.*)\n(.*)\n\n', b'', ratings_bytes.read()))
+    ratings_bytes = io.BytesIO(re.sub(b'^((?s).)*?\n\n', b'', ratings_bytes.read()))
 
     df = unzipddp.read_csv_from_bytes_to_df(ratings_bytes)
     try:

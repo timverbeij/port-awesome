@@ -13,6 +13,7 @@ import port.twitter as twitter
 import port.facebook as facebook
 import port.chrome as chrome
 import port.instagram as instagram
+import port.linkedin as linkedin
 
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 
@@ -33,6 +34,7 @@ def process(session_id):
     yield donate_logs(f"{session_id}-tracking")
 
     platforms = [
+        ("LinkedIn", extract_linkedin, linkedin.validate),
         ("Instagram", extract_instagram, instagram.validate),
         ("Chrome", extract_chrome, chrome.validate),
         ("Facebook", extract_facebook, facebook.validate),
@@ -460,6 +462,34 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     return tables_to_render
 
 
+def extract_linkedin(zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
+    tables_to_render = []
+
+    df = linkedin.company_follows_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin company_follows", "nl": "Linkedin company_follows"})
+        tables = create_consent_form_tables("linkedin_company_follows", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = linkedin.member_follows_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin member_follows", "nl": "Linkedin member_follows"})
+        tables = create_consent_form_tables("linkedin_member_follows", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = linkedin.connections_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin connections", "nl": "Linkedin connections"})
+        tables = create_consent_form_tables("linkedin_connections", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = linkedin.reactions_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin reactions", "nl": "Linkedin reactions"})
+        tables = create_consent_form_tables("linkedin_reactions", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
 
 
 ##########################################
