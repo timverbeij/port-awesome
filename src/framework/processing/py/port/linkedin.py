@@ -54,7 +54,6 @@ DDP_CATEGORIES = [
     ),
 ]
 
-
 STATUS_CODES = [
     StatusCode(id=0, description="Valid DDP", message=""),
     StatusCode(id=1, description="Not a valid DDP", message=""),
@@ -143,3 +142,48 @@ def reactions_to_df(linkedin_zip: str) -> pd.DataFrame:
     df = unzipddp.read_csv_from_bytes_to_df(b)
 
     return df
+
+
+def ads_clicked_to_df(linkedin_zip: str) -> pd.DataFrame:
+    """
+    'Ads Clicked.csv'
+    """
+    filename = "Ads Clicked.csv"
+    b = unzipddp.extract_file_from_zip(linkedin_zip, filename)
+    df = unzipddp.read_csv_from_bytes_to_df(b)
+
+    return df
+
+
+def search_queries_to_df(linkedin_zip: str) -> pd.DataFrame:
+    """
+    'SearchQueries.csv'
+    """
+    filename = "SearchQueries.csv"
+    b = unzipddp.extract_file_from_zip(linkedin_zip, filename)
+    df = unzipddp.read_csv_from_bytes_to_df(b)
+
+    return df
+
+
+def shares_to_df(linkedin_zip: str) -> pd.DataFrame:
+    """
+    'Shares.csv'
+    """
+    filename = "Shares.csv"
+    b = unzipddp.extract_file_from_zip(linkedin_zip, filename)
+    df = unzipddp.read_csv_from_bytes_to_df(b)
+
+    return df
+
+
+def comments_to_df(linkedin_zip: str) -> pd.DataFrame:
+    """
+    'Comments.csv'
+    """
+    filename = "Comments.csv"
+    b = unzipddp.extract_file_from_zip(linkedin_zip, filename)
+    df = unzipddp.read_csv_from_bytes_to_df(b)
+
+    return df
+
