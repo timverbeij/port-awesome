@@ -489,6 +489,30 @@ def extract_linkedin(zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
         tables = create_consent_form_tables("linkedin_reactions", table_title, df) 
         tables_to_render.extend(tables)
 
+    df = linkedin.ads_clicked_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin ads_clicked", "nl": "Linkedin ads_clicked"})
+        tables = create_consent_form_tables("linkedin_ads_clicked", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = linkedin.search_queries_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin search_queries", "nl": "Linkedin search_queries"})
+        tables = create_consent_form_tables("linkedin_search_queries", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = linkedin.shares_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin shares", "nl": "Linkedin shares"})
+        tables = create_consent_form_tables("linkedin_shares", table_title, df) 
+        tables_to_render.extend(tables)
+
+    df = linkedin.comments_to_df(zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Linkedin comments", "nl": "Linkedin comments"})
+        tables = create_consent_form_tables("linkedin_comments", table_title, df) 
+        tables_to_render.extend(tables)
+
     return tables_to_render
 
 
