@@ -267,6 +267,12 @@ def extract_tiktok(tiktok_file: str, validation: validate.ValidateInput) -> list
         tables = create_consent_form_tables("tiktok_comment", table_title, df) 
         tables_to_render.extend(tables)
 
+    df = tiktok.watch_live_history_to_df(tiktok_file, validation)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Tiktok watch live history", "nl": "Tiktok watch live history"})
+        tables = create_consent_form_tables("tiktok_watch_live_history", table_title, df) 
+        tables_to_render.extend(tables)
+
     return tables_to_render
 
 

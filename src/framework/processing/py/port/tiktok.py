@@ -232,5 +232,24 @@ def comment_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
 
     return out
 
-# TODO
 # Extract watch live history
+def watch_live_history_to_df(tiktok_zip: str, validation: ValidateInput) -> pd.DataFrame:
+
+    d = read_tiktok_file(tiktok_zip, validation)
+    datapoints = []
+    out = pd.DataFrame()
+
+    try: 
+        history = d["Tiktok Live"]["Watch Live History"].get("WatchLiveMap", {})
+        for k, v in history.items():
+            datapoints.append((
+                k,
+                v.get("Link", ""),
+                v.get("WatchTime", "")
+            ))
+
+        out = pd.DataFrame(datapoints, columns=["Id", "Link", "Date"])
+    except Exception as e:
+        logger.error("Could not extract: %s", e)
+
+    return out
