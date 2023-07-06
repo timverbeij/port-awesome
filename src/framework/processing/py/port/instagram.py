@@ -192,7 +192,7 @@ def posts_viewed_to_df(instagram_zip: str) -> pd.DataFrame:
                 account_name,
                 helpers.epoch_to_iso(timestamp)
             ))
-        out = pd.DataFrame(datapoints, columns=["Author of ad", "Date"])
+        out = pd.DataFrame(datapoints, columns=["Author", "Date"])
         out = out.sort_values(by="Date", key=helpers.sort_isotimestamp_empty_timestamp_last)
 
     except Exception as e:
