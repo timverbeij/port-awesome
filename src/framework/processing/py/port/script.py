@@ -381,6 +381,12 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
         tables = create_consent_form_tables("facebook_controls", table_title, df) 
         tables_to_render.extend(tables)
 
+    df = facebook.group_posts_and_comments_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook group posts and comments", "nl": "Facebook group posts and comments"})
+        tables = create_consent_form_tables("facebook_group_posts_and_comments", table_title, df) 
+        tables_to_render.extend(tables)
+        
     return tables_to_render
 
 
