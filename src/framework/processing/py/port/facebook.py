@@ -276,7 +276,6 @@ def your_posts_to_df(facebook_zip: str) -> pd.DataFrame:
     try:
         for item in d:
             denested_dict = helpers.dict_denester(item)
-            print(denested_dict)
 
             datapoints.append((
                 find_items(denested_dict, "title"),
@@ -436,4 +435,33 @@ def controls_to_df(facebook_zip: str) -> pd.DataFrame:
         logger.error("Exception caught: %s", e)
 
     return out
+
+
+def group_posts_and_comments_to_df(facebook_zip: str) -> pd.DataFrame:
+
+    b = unzipddp.extract_file_from_zip(facebook_zip, "group_posts_and_comments.json")
+    d = unzipddp.read_json_from_bytes(b)
+
+    out = pd.DataFrame()
+    datapoints = []
+
+    try:
+        l = d["group_posts_v2"]
+        for item in l:
+            denested_dict = helpers.dict_denester(item)
+
+            datapoints.append((
+                find_items(denested_dict, "title"),
+                find_items(denested_dict, "post"),
+                find_items(denested_dict, "comment"), # There are no comments in my test data, this is a guess!!
+                helpers.epoch_to_iso(find_items(denested_dict, "timestamp")),
+                find_items(denested_dict, "url"),
+            ))
+
+        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date", "Url"])
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+
+    return out
+
 
