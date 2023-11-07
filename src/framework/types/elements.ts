@@ -394,7 +394,7 @@ export function isPropsUITable (arg: any): arg is PropsUITable {
 
 export interface PropsUITableHead {
   __type__: 'PropsUITableHead'
-  cells: PropsUITableCell[]
+  cells: string[]
 }
 export function isPropsUITableHead (arg: any): arg is PropsUITableHead {
   return isInstanceOf<PropsUITableHead>(arg, 'PropsUITableHead', ['cells'])
@@ -411,18 +411,10 @@ export function isPropsUITableBody (arg: any): arg is PropsUITableBody {
 export interface PropsUITableRow {
   __type__: 'PropsUITableRow'
   id: string
-  cells: PropsUITableCell[]
+  cells: string[]
 }
 export function isPropsUITableRow (arg: any): arg is PropsUITableRow {
   return isInstanceOf<PropsUITableRow>(arg, 'PropsUITableRow', ['id', 'cells'])
-}
-
-export interface PropsUITableCell {
-  __type__: 'PropsUITableCell'
-  text: string
-}
-export function isPropsUITableCell (arg: any): arg is PropsUITableCell {
-  return isInstanceOf<PropsUITableCell>(arg, 'PropsUITableCell', ['text'])
 }
 
 export interface TableContext {
@@ -478,7 +470,11 @@ export interface PropsUIQuestionMultipleChoice {
   choices: Text[]
 }
 export function isPropsUIQuestionMultipleChoice (arg: any): arg is PropsUIQuestionMultipleChoice {
-  return isInstanceOf<PropsUIQuestionMultipleChoice>(arg, 'PropsUIQuestionMultipleChoice', ['id', 'question', 'choices'])
+  return isInstanceOf<PropsUIQuestionMultipleChoice>(arg, 'PropsUIQuestionMultipleChoice', [
+    'id',
+    'question',
+    'choices'
+  ])
 }
 
 export interface PropsUIQuestionMultipleChoiceCheckbox {
@@ -487,8 +483,14 @@ export interface PropsUIQuestionMultipleChoiceCheckbox {
   question: Text
   choices: Text[]
 }
-export function isPropsUIQuestionMultipleChoiceCheckbox (arg: any): arg is PropsUIQuestionMultipleChoiceCheckbox {
-  return isInstanceOf<PropsUIQuestionMultipleChoiceCheckbox>(arg, 'PropsUIQuestionMultipleChoiceCheckbox', ['id', 'question', 'choices'])
+export function isPropsUIQuestionMultipleChoiceCheckbox (
+  arg: any
+): arg is PropsUIQuestionMultipleChoiceCheckbox {
+  return isInstanceOf<PropsUIQuestionMultipleChoiceCheckbox>(
+    arg,
+    'PropsUIQuestionMultipleChoiceCheckbox',
+    ['id', 'question', 'choices']
+  )
 }
 
 export interface PropsUIQuestionOpen {

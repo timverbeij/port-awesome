@@ -135,6 +135,10 @@ def create_consent_form_tables(unique_table_id: str, title: props.Translatable, 
     This function chunks extracted data into tables of 5000 rows that can be renderd on screen
     """
 
+    return [
+        props.PropsUIPromptConsentFormTable(f"{unique_table_id}", title, df)
+    ]
+    ## no longer needed. Fixed the bug that slowed down exponentially with table size
     df_list = helpers.split_dataframe(df, 5000)
     out = []
 

@@ -14,10 +14,7 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     this.worker = worker
     this.worker.onerror = console.log
     this.worker.onmessage = (event) => {
-      console.log(
-        '[WorkerProcessingEngine] Received event from worker: ',
-        event.data.eventType
-      )
+      console.log('[WorkerProcessingEngine] Received event from worker: ', event.data.eventType)
       this.handleEvent(event)
     }
 
@@ -27,7 +24,11 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
   trackUserStart (sessionId: string): void {
     const key = `${sessionId}-tracking`
     const jsonString = JSON.stringify({ message: 'user started' })
-    const command: CommandSystemDonate = { __type__: 'CommandSystemDonate', key, json_string: jsonString }
+    const command: CommandSystemDonate = {
+      __type__: 'CommandSystemDonate',
+      key,
+      json_string: jsonString
+    }
     this.commandHandler.onCommand(command).then(
       () => {},
       () => {}
@@ -56,16 +57,12 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
         this.handleRunCycle(event.data.scriptEvent)
         break
       default:
-        console.log(
-          '[ReactEngine] received unsupported flow event: ',
-          eventType
-        )
+        console.log('[ReactEngine] received unsupported flow event: ', eventType)
     }
   }
 
   start (): void {
     console.log('[WorkerProcessingEngine] started')
-
     const waitForInitialization: Promise<void> = this.waitForInitialization()
 
     waitForInitialization.then(
@@ -89,6 +86,7 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
   }
 
   nextRunCycle (response: Response): void {
+    console.log('next cycle')
     this.worker.postMessage({ eventType: 'nextRunCycle', response })
   }
 

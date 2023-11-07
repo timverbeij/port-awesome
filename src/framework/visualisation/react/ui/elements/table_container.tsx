@@ -174,7 +174,7 @@ function searchRows (rows: PropsUITableRow[], search: string): Set<string> | und
     for (const regex of regexes) {
       let anyCellMatches = false
       for (const cell of row.cells) {
-        if (regex.test(cell.text)) {
+        if (regex.test(cell)) {
           anyCellMatches = true
           break
         }

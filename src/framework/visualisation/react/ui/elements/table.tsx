@@ -9,7 +9,7 @@ import {
   SetStateAction
 } from 'react'
 import Highlighter from 'react-highlight-words'
-import { PropsUITableCell, TableWithContext, PropsUITableRow } from '../../../../types/elements'
+import { TableWithContext, PropsUITableRow } from '../../../../types/elements'
 import { CheckBox } from './check_box'
 
 import UndoSvg from '../../../../../assets/images/undo.svg'
@@ -45,7 +45,7 @@ export const Table = ({
   pageSize = 7
 }: Props): JSX.Element => {
   const [page, setPage] = useState(0)
-  const columnNames = useMemo(() => table.head.cells.map((cell) => cell.text), [table])
+  const columnNames = useMemo(() => table.head.cells.map((cell) => cell), [table])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const ref = useRef<HTMLDivElement>(null)
   const nPages = Math.ceil(table.body.rows.length / pageSize)
@@ -230,7 +230,7 @@ function Cell ({
   cellClass,
   setTooltip
 }: {
-  cell: PropsUITableCell
+  cell: string
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
@@ -258,7 +258,7 @@ function Cell ({
       <Highlighter
         searchWords={searchWords}
         autoEscape
-        textToHighlight={cell.text}
+        textToHighlight={cell}
         highlightClassName='bg-tertiary rounded-sm'
       />
     )
@@ -289,7 +289,7 @@ function Cell ({
         <Highlighter
           searchWords={searchWords}
           autoEscape
-          textToHighlight={cell.text}
+          textToHighlight={cell}
           highlightClassName='bg-tertiary rounded-sm'
         />
       </div>
