@@ -151,7 +151,8 @@ def epoch_to_iso(epoch_timestamp: str | int) -> str:
     try:
         epoch_timestamp = int(epoch_timestamp)
         out = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc).isoformat()
-        print(f"TIMESTAMP: {out}")
+        # disabled print, because this prints every row to console (slow)
+        #print(f"TIMESTAMP: {out}")
     except (OverflowError, OSError, ValueError, TypeError) as e:
         logger.error("Could not convert epoch time timestamp, %s", e)
 

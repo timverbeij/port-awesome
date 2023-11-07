@@ -2,7 +2,6 @@ import { assert, Weak } from '../../../../helpers'
 import {
   PropsUITable,
   PropsUITableBody,
-  PropsUITableCell,
   PropsUITableHead,
   PropsUITableRow,
   TableWithContext,
@@ -29,11 +28,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   const [metaTables, setMetaTables] = useState<TableWithContext[]>(() =>
     parseTables(props.metaTables)
   )
-
-  // const { visualizationSettings, locale, resolve } = props
   const { locale, resolve } = props
-  // const visualizationSettings = testVisualizations
-
   const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
 
   useEffect(() => {
@@ -52,13 +47,9 @@ export const ConsentForm = (props: Props): JSX.Element => {
     })
   }, [])
 
-  function rowCell (dataFrame: any, column: string, row: number): PropsUITableCell {
+  function rowCell (dataFrame: any, column: string, row: number): string {
     const text = String(dataFrame[column][`${row}`])
-    return { __type__: 'PropsUITableCell', text: text }
-  }
-
-  function headCell (dataFrame: any, column: string): PropsUITableCell {
-    return { __type__: 'PropsUITableCell', text: column }
+    return text
   }
 
   function columnNames (dataFrame: any): string[] {
@@ -80,7 +71,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   function rows (data: any): PropsUITableRow[] {
     const result: PropsUITableRow[] = []
-    for (let row = 0; row <= rowCount(data); row++) {
+    const n = rowCount(data)
+    for (let row = 0; row <= n; row++) {
       const id = `${row}`
       const cells = columnNames(data).map((column: string) => rowCell(data, column, row))
       result.push({ __type__: 'PropsUITableRow', id, cells })
@@ -99,10 +91,9 @@ export const ConsentForm = (props: Props): JSX.Element => {
     const title = Translator.translate(tableData.title, props.locale)
     const deletedRowCount = 0
     const dataFrame = JSON.parse(tableData.data_frame)
-    const headCells = columnNames(dataFrame).map((column: string) => headCell(dataFrame, column))
+    const headCells = columnNames(dataFrame).map((column: string) => column)
     const head: PropsUITableHead = { __type__: 'PropsUITableHead', cells: headCells }
     const body: PropsUITableBody = { __type__: 'PropsUITableBody', rows: rows(dataFrame) }
-
     return {
       __type__: 'PropsUITable',
       id,
@@ -162,8 +153,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
       row.cells.length === head.cells.length,
       `Number of cells in row (${row.cells.length}) should be equals to number of cells in head (${head.cells.length})`
     )
-    const keys = head.cells.map((cell) => cell.text)
-    const values = row.cells.map((cell) => cell.text)
+    const keys = head.cells.map((cell) => cell)
+    const values = row.cells.map((cell) => cell)
     return _.fromPairs(_.zip(keys, values))
   }
 
