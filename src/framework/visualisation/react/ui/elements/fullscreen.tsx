@@ -22,10 +22,10 @@ export const Fullscreen = ({ children, enabled }: { children: JSX.Element; enabl
     <>
       <button onClick={() => setFullscreen(true)}>{zoomInIcon}</button>
       {fullscreen ? (
-        <div className="fixed inset-0 flex justify-center items-center z-50 ">
+        <div className="fixed inset-0 flex justify-center items-center z-50 backdrop-blur-sm bg-[#fff7]">
           <div
             ref={ref}
-            className="relative p-6 z-50 w-[80%] h-[80%] animate-fadeIn bg-white border-2 border-grey2 rounded-md"
+            className="relative p-6 z-50 max-w-[1200px] max-h-[800px] w-[95%] h-[95%] animate-fadeIn bg-white border-2 border-grey2 rounded-md"
           >
             <button
               className="absolute top-0 right-0 py-3 px-5"

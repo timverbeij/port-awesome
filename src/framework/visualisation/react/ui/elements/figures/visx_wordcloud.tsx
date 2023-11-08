@@ -1,19 +1,23 @@
 import { Text } from '@visx/text'
 import Wordcloud from '@visx/wordcloud/lib/Wordcloud'
 import { ParentSize } from '@visx/responsive'
-import { TextVisualizationData } from '../../../../../types/visualizations'
+import { ScoredTerm, TextVisualizationData } from '../../../../../types/visualizations'
 import { useMemo } from 'react'
 
 interface Props {
   visualizationData: TextVisualizationData
 }
 
-function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
-  const fontRange = [12, 45]
-  const colors = ['#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60']
-  const nWords = 100
+interface Word extends ScoredTerm {
+  fontSize: number
+}
 
-  const words = useMemo(() => {
+function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
+  const colors = ['#444', '#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60']
+  const nWords = 200
+
+  const words: Word[] = useMemo(() => {
+    const fontRange = [15, 45]
     const words = visualizationData.topTerms.slice(0, nWords)
 
     let minImportance = words[0].importance
@@ -23,13 +27,16 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
       if (w.importance > maxImportance) maxImportance = w.importance
     })
 
-    words.forEach((w) => {
-      w.importance = (w.importance - minImportance) / (maxImportance - minImportance + 0.001)
+    const [sqrtMin, sqrtMax] = [Math.sqrt(minImportance), Math.sqrt(maxImportance)]
+    return words.map((w) => {
+      const sqrtImportance = Math.sqrt(w.importance)
+      const scale = (sqrtImportance - sqrtMin) / (sqrtMax - sqrtMin + 0.001)
+      const fontSize = scale * (fontRange[1] - fontRange[0]) + fontRange[0]
+      return { ...w, fontSize }
     })
-
-    return words
   }, [visualizationData, nWords])
 
+  console.log(words)
   return (
     <ParentSize debounceTime={1000}>
       {(parent) => (
@@ -38,9 +45,10 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
           height={parent.height}
           width={parent.width}
           rotate={0}
-          padding={5}
+          padding={4}
           spiral="rectangular"
-          fontSize={(w) => w.importance * (fontRange[1] - fontRange[0]) + fontRange[0]}
+          font="Finador-Bold"
+          fontSize={(w) => w.fontSize}
           random={() => 0.5}
         >
           {(cloudWords) => {
