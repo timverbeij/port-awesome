@@ -68,7 +68,7 @@ function getTopTerms(
 ): ScoredTerm[] {
   return Object.entries(vocabulary)
     .map(([text, stats]) => {
-      const tf = Math.log(1 + stats.value)
+      const tf = stats.value
       const idf = Math.log(nDocs / stats.docFreq)
       return { text, value: stats.value, importance: tf * idf }
     })
