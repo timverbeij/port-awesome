@@ -46,6 +46,7 @@ export interface TextVisualization extends VisualizationProps {
   textColumn: string
   valueColumn?: string
   tokenize?: boolean
+  extract?: 'url_domain'
 }
 export interface ScoredTerm {
   text: string
