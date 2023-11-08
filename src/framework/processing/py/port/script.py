@@ -1,6 +1,8 @@
 import logging
 import json
 import io
+from typing import Optional, Literal
+
 
 import pandas as pd
 
@@ -130,31 +132,6 @@ def assemble_tables_into_form(table_list: list[props.PropsUIPromptConsentFormTab
     return props.PropsUIPromptConsentForm(table_list, [])
 
 
-def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
-    """
-    This function chunks extracted data into tables of 5000 rows that can be renderd on screen
-    """
-
-    return [
-        props.PropsUIPromptConsentFormTable(f"{unique_table_id}", title, df)
-    ]
-    ## no longer needed. Fixed the bug that slowed down exponentially with table size
-    df_list = helpers.split_dataframe(df, 5000)
-    out = []
-
-    if len(df_list) == 1:
-        table = props.PropsUIPromptConsentFormTable(unique_table_id, title, df_list[0])
-        out.append(table)
-    else:
-        for i, df in enumerate(df_list):
-            index = i + 1
-            title_with_index = props.Translatable({lang: f"{val} {index}" for lang, val in title.translations.items()})
-            table = props.PropsUIPromptConsentFormTable(f"{unique_table_id}_{index}", title_with_index, df)
-            out.append(table)
-
-    return out
-
-
 def donate_logs(key):
     log_string = LOG_STREAM.getvalue()  # read the log stream
     if log_string:
@@ -192,36 +169,36 @@ def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> lis
     df = youtube.my_comments_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube comments", "nl": "Youtube comments"})
-        tables = create_consent_form_tables("youtube_comments", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("youtube_comments", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract Watch later.csv
     df = youtube.watch_later_to_df(youtube_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube watch later", "nl": "Youtube watch later"})
-        tables = create_consent_form_tables("youtube_watch_later", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("youtube_watch_later", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract subscriptions.csv
     df = youtube.subscriptions_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube subscriptions", "nl": "Youtube subscriptions"})
-        tables = create_consent_form_tables("youtube_subscriptions", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("youtube_subscriptions", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract subscriptions.csv
     df = youtube.watch_history_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube watch history", "nl": "Youtube watch history"})
-        tables = create_consent_form_tables("youtube_watch_history", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("youtube_watch_history", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract live chat messages
     df = youtube.my_live_chat_messages_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube my live chat messages", "nl": "Youtube my live chat messages"})
-        tables = create_consent_form_tables("youtube_my_live_chat_messages", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("youtube_my_live_chat_messages", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 
@@ -232,50 +209,50 @@ def extract_tiktok(tiktok_file: str, validation: validate.ValidateInput) -> list
     df = tiktok.video_browsing_history_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok video browsing history", "nl": "Tiktok video browsing history"})
-        tables = create_consent_form_tables("tiktok_video_browsing_history", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_video_browsing_history", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.favorite_videos_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok favorite videos", "nl": "Tiktok favorite videos"})
-        tables = create_consent_form_tables("tiktok_favorite_videos", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_favorite_videos", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.following_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok following", "nl": "Tiktok following"})
-        tables = create_consent_form_tables("tiktok_following", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_following", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.like_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok likes", "nl": "Tiktok likes"})
-        tables = create_consent_form_tables("tiktok_like", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_like", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.search_history_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok search history", "nl": "Tiktok search history"})
-        tables = create_consent_form_tables("tiktok_search_history", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_search_history", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.share_history_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok share history", "nl": "Tiktok share history"})
-        tables = create_consent_form_tables("tiktok_share_history", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_share_history", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.comment_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok comment history", "nl": "Tiktok comment history"})
-        tables = create_consent_form_tables("tiktok_comment", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_comment", table_title, df) 
+        tables_to_render.append(table)
 
     df = tiktok.watch_live_history_to_df(tiktok_file, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Tiktok watch live history", "nl": "Tiktok watch live history"})
-        tables = create_consent_form_tables("tiktok_watch_live_history", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("tiktok_watch_live_history", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 
@@ -286,38 +263,38 @@ def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormT
     df = twitter.following_to_df(twitter_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Twitter following", "nl": "Twitter following"})
-        tables = create_consent_form_tables("twitter_following", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("twitter_following", table_title, df) 
+        tables_to_render.append(table)
 
     df = twitter.like_to_df(twitter_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Twitter likes", "nl": "Twitter likes"})
-        tables = create_consent_form_tables("twitter_like", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("twitter_like", table_title, df) 
+        tables_to_render.append(table)
 
     df = twitter.tweets_to_df(twitter_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Twitter tweets", "nl": "Twitter tweets"})
-        tables = create_consent_form_tables("twitter_tweets", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("twitter_tweets", table_title, df) 
+        tables_to_render.append(table)
 
     df = twitter.user_link_clicks_to_df(twitter_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Twitter user link clicks", "nl": "Twitter user link clicks"})
-        tables = create_consent_form_tables("twitter_user_link_clicks", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("twitter_user_link_clicks", table_title, df) 
+        tables_to_render.append(table)
 
     df = twitter.block_to_df(twitter_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Twitter block", "nl": "Twitter block"})
-        tables = create_consent_form_tables("twitter_block", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("twitter_block", table_title, df) 
+        tables_to_render.append(table)
 
     df = twitter.mute_to_df(twitter_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Twitter mute", "nl": "Twitter mute"})
-        tables = create_consent_form_tables("twitter_mute", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("twitter_mute", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 
@@ -328,70 +305,98 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
     df = facebook.group_interactions_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook group interactions", "nl": "Facebook group interactions"})
-        tables = create_consent_form_tables("facebook_group_interactions", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_group_interactions", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.comments_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook comments", "nl": "Facebook comments"})
-        tables = create_consent_form_tables("facebook_comments", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_comments", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.likes_and_reactions_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook likes and reactions", "nl": "Facebook likes and reactions"})
-        tables = create_consent_form_tables("facebook_likes_and_reactions", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_likes_and_reactions", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.your_badges_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook your badges", "nl": "Facebook your badges"})
-        tables = create_consent_form_tables("facebook_your_badges", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_your_badges", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.your_posts_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook your posts", "nl": "Facebook your posts"})
-        tables = create_consent_form_tables("facebook_your_posts", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_your_posts", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.your_search_history_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook your searh history", "nl": "Facebook your search history"})
-        tables = create_consent_form_tables("facebook_your_search_history", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_your_search_history", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.recently_viewed_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook recently viewed", "nl": "Facebook recently viewed"})
-        tables = create_consent_form_tables("facebook_recently_viewed", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_recently_viewed", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.recently_visited_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook recently visited", "nl": "Facebook recently visited"})
-        tables = create_consent_form_tables("facebook_recently_visited", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_recently_visited", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.feed_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook feed", "nl": "Facebook feed"})
-        tables = create_consent_form_tables("facebook_feed", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_feed", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.controls_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook controls", "nl": "Facebook controls"})
-        tables = create_consent_form_tables("facebook_controls", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_controls", table_title, df) 
+        tables_to_render.append(table)
 
     df = facebook.group_posts_and_comments_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook group posts and comments", "nl": "Facebook group posts and comments"})
-        tables = create_consent_form_tables("facebook_group_posts_and_comments", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("facebook_group_posts_and_comments", table_title, df) 
+        tables_to_render.append(table)
         
     return tables_to_render
+
+def create_chart(type: Literal["bar", "line", "area"], 
+                 nl_title: str, en_title: str, 
+                 x: str, y: Optional[str] = None, 
+                 x_label: Optional[str] = None, y_label: Optional[str] = None,
+                 date_format: Optional[str] = None, aggregate: str = "count"):
+    if y is None:
+        y = x
+        if aggregate != "count": 
+            raise ValueError("If y is None, aggregate must be count if y is not specified")
+        
+    return props.PropsUIChartVisualization(
+        title = props.Translatable({"en": en_title, "nl": nl_title}),
+        type = type,
+        group = props.PropsUIChartGroup(column= x, label= x_label, dateFormat= date_format),
+        values = [props.PropsUIChartValue(column= y, label= y_label, aggregate= aggregate)]       
+    )
+
+def create_wordcloud(nl_title: str, en_title: str, column: str, 
+                     tokenize: bool = False, 
+                     value_column: Optional[str] = None, 
+                     extract: Optional[Literal["url_domain"]] = None):
+    return props.PropsUITextVisualization(title = props.Translatable({"en": en_title, "nl": nl_title}),
+                                          type='wordcloud',
+                                          text_column=column,
+                                          value_column=value_column,
+                                          tokenize=tokenize,
+                                          extract=extract)
 
 
 def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
@@ -400,20 +405,22 @@ def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTab
     df = chrome.browser_history_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome browser history", "nl": "Chrome browser history"})
-        tables = create_consent_form_tables("chrome_browser_history", table_title, df) 
-        tables_to_render.extend(tables)
+        vis = [create_chart("line", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="URLs", date_format="auto"),
+               create_wordcloud("Meest bezochte websites", "Most visited websites", "Url", extract='url_domain')]
+        table =  props.PropsUIPromptConsentFormTable("chrome_browser_history", table_title, df, vis) 
+        tables_to_render.append(table)
 
     df = chrome.bookmarks_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome bookmarks", "nl": "Chrome bookmarks"})
-        tables = create_consent_form_tables("chrome_bookmarks", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("chrome_bookmarks", table_title, df) 
+        tables_to_render.append(table)
 
     df = chrome.omnibox_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome omnibox", "nl": "Chrome omnibox"})
-        tables = create_consent_form_tables("chrome_omnibox", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("chrome_omnibox", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 
@@ -424,56 +431,56 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.accounts_not_interested_in_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram accounts not interested in", "nl": "Instagram accounts not interested in"})
-        tables = create_consent_form_tables("instagram_accounts_not_interested_in", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_accounts_not_interested_in", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.ads_viewed_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram ads viewed", "nl": "Instagram ads viewed"})
-        tables = create_consent_form_tables("instagram_ads_viewed", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_ads_viewed", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram posts viewed", "nl": "Instagram posts viewed"})
-        tables = create_consent_form_tables("instagram_posts_viewed", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.posts_not_interested_in_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram posts not interested in", "nl": "Instagram posts not interested in"})
-        tables = create_consent_form_tables("instagram_posts_not_interested_in", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_posts_not_interested_in", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.videos_watched_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram videos_watched", "nl": "Instagram posts videos_watched"})
-        tables = create_consent_form_tables("instagram_videos_watched", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.post_comments_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram post_comments", "nl": "Instagram posts post_comments"})
-        tables = create_consent_form_tables("instagram_post_comments", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.following_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram following", "nl": "Instagram posts following"})
-        tables = create_consent_form_tables("instagram_following", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_following", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.liked_comments_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram liked_comments", "nl": "Instagram posts liked_comments"})
-        tables = create_consent_form_tables("instagram_liked_comments", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df) 
+        tables_to_render.append(table)
 
     df = instagram.liked_posts_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram liked_posts", "nl": "Instagram posts liked_posts"})
-        tables = create_consent_form_tables("instagram_liked_posts", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 
@@ -484,50 +491,50 @@ def extract_linkedin(zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     df = linkedin.company_follows_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin company_follows", "nl": "Linkedin company_follows"})
-        tables = create_consent_form_tables("linkedin_company_follows", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_company_follows", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.member_follows_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin member_follows", "nl": "Linkedin member_follows"})
-        tables = create_consent_form_tables("linkedin_member_follows", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_member_follows", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.connections_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin connections", "nl": "Linkedin connections"})
-        tables = create_consent_form_tables("linkedin_connections", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_connections", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.reactions_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin reactions", "nl": "Linkedin reactions"})
-        tables = create_consent_form_tables("linkedin_reactions", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_reactions", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.ads_clicked_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin ads_clicked", "nl": "Linkedin ads_clicked"})
-        tables = create_consent_form_tables("linkedin_ads_clicked", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_ads_clicked", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.search_queries_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin search_queries", "nl": "Linkedin search_queries"})
-        tables = create_consent_form_tables("linkedin_search_queries", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_search_queries", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.shares_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin shares", "nl": "Linkedin shares"})
-        tables = create_consent_form_tables("linkedin_shares", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_shares", table_title, df) 
+        tables_to_render.append(table)
 
     df = linkedin.comments_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin comments", "nl": "Linkedin comments"})
-        tables = create_consent_form_tables("linkedin_comments", table_title, df) 
-        tables_to_render.extend(tables)
+        table =  props.PropsUIPromptConsentFormTable("linkedin_comments", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 

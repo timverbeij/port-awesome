@@ -1,4 +1,4 @@
-import { getTableColumn, rescaleToRange, tokenize } from './util'
+import { extractUrlDomain, getTableColumn, rescaleToRange, tokenize } from './util'
 import { PropsUITable, TableContext } from '../../../../../types/elements'
 import {
   TextVisualizationData,
@@ -11,7 +11,7 @@ interface VocabularyStats {
   docFreq: number
 }
 
-export async function prepareTextData (
+export async function prepareTextData(
   table: PropsUITable & TableContext,
   visualization: TextVisualization
 ): Promise<TextVisualizationData> {
@@ -32,7 +32,7 @@ export async function prepareTextData (
   return visualizationData
 }
 
-function getVocabulary (
+function getVocabulary(
   texts: string[],
   values: string[] | null,
   visualization: TextVisualization
@@ -46,25 +46,27 @@ function getVocabulary (
       visualization.tokenize != null && visualization.tokenize ? tokenize(text) : [text]
 
     const seen = new Set<string>()
-    for (const token of tokens) {
+    for (let token of tokens) {
+      if (visualization.extract === 'url_domain') token = extractUrlDomain(token)
       if (vocabulary[token] === undefined) vocabulary[token] = { value: 0, docFreq: 0 }
       if (!seen.has(token)) {
         vocabulary[token].docFreq += 1
         seen.add(token)
       }
-      const v = Number(values?.[i]) ?? 1
+
+      const v = values ? Number(values[i]) ?? 1 : 1
       if (!isNaN(v)) vocabulary[token].value += v
     }
   }
   return vocabulary
 }
 
-function getTopTerms (
+function getTopTerms(
   vocabulary: Record<string, VocabularyStats>,
   nDocs: number,
   topTerms: number
 ): ScoredTerm[] {
-  const words = Object.entries(vocabulary)
+  return Object.entries(vocabulary)
     .map(([text, stats]) => {
       const tf = Math.log(1 + stats.value)
       const idf = Math.log(nDocs / stats.docFreq)
@@ -72,15 +74,4 @@ function getTopTerms (
     })
     .sort((a, b) => b.importance - a.importance)
     .slice(0, topTerms)
-
-  const minImportance = Math.min(...words.map((w) => w.importance))
-  const maxImportance = Math.max(...words.map((w) => w.importance))
-
-  return words.map((w) => {
-    return {
-      text: w.text,
-      value: w.value,
-      importance: rescaleToRange(w.importance, minImportance, maxImportance, 0, 1)
-    }
-  })
 }

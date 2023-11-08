@@ -91,7 +91,6 @@ class PropsUIChartGroup:
     column: str
     label: Optional[str] = None
     dateFormat: Optional[str] = None
-    tokenize: Optional[bool] = False
 
     def toDict(self):
         dict = {}
@@ -159,7 +158,8 @@ class PropsUITextVisualization:
     text_column: str
     value_column: Optional[str] = None
     tokenize: Optional[bool] = False
-        
+    extract: Optional[Literal["url_domain"]] = None
+
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUITextVisualization"
@@ -168,6 +168,7 @@ class PropsUITextVisualization:
         dict["textColumn"] = self.text_column
         dict["valueColumn"] = self.value_column
         dict["tokenize"] = self.tokenize
+        dict["extract"] = self.extract
         return dict
 
 
