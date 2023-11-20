@@ -190,7 +190,8 @@ def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> lis
     df = youtube.watch_history_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube watch history", "nl": "Youtube watch history"})
-        table =  props.PropsUIPromptConsentFormTable("youtube_watch_history", table_title, df) 
+        vis = [create_wordcloud("Meest bekeken kanalen", "Most watched channels", "Channel")]
+        table =  props.PropsUIPromptConsentFormTable("youtube_watch_history", table_title, df, vis) 
         tables_to_render.append(table)
 
     # Extract live chat messages
@@ -413,7 +414,8 @@ def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTab
     df = chrome.bookmarks_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome bookmarks", "nl": "Chrome bookmarks"})
-        table =  props.PropsUIPromptConsentFormTable("chrome_bookmarks", table_title, df) 
+        vis = [create_wordcloud("Meest voorkomende woorden in bookmarks", "Most common words in bookmarks", "Bookmark", tokenize=True)]
+        table =  props.PropsUIPromptConsentFormTable("chrome_bookmarks", table_title, df, vis) 
         tables_to_render.append(table)
 
     df = chrome.omnibox_to_df(chrome_zip)
@@ -443,7 +445,8 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram posts viewed", "nl": "Instagram posts viewed"})
-        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df) 
+        vis = [create_chart("line", "Instagram posts bekeken", "Instagram posts viewed", "Date", y_label="Posts", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, vis) 
         tables_to_render.append(table)
 
     df = instagram.posts_not_interested_in_to_df(instagram_zip)
@@ -455,13 +458,15 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.videos_watched_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram videos_watched", "nl": "Instagram posts videos_watched"})
-        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df) 
+        vis = [create_chart("line", "Instagram videos bekeken", "Instagram videos watched", "Date", y_label="Videos", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df, vis) 
         tables_to_render.append(table)
 
     df = instagram.post_comments_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram post_comments", "nl": "Instagram posts post_comments"})
-        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df) 
+        vis = [create_wordcloud("Meest voorkomende woorden in comments", "Most common words in comments", "Comment", tokenize=True)]
+        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df, vis) 
         tables_to_render.append(table)
 
     df = instagram.following_to_df(instagram_zip)
@@ -473,13 +478,15 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.liked_comments_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram liked_comments", "nl": "Instagram posts liked_comments"})
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df) 
+        vis = [create_chart("line", "Instagram comments geliked", "Instagram comments liked", "Date", y_label="Comments", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, vis) 
         tables_to_render.append(table)
 
     df = instagram.liked_posts_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram liked_posts", "nl": "Instagram posts liked_posts"})
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df) 
+        vis = [create_chart("line", "Instagram posts geliked", "Instagram posts liked", "Date", y_label="Posts", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, vis) 
         tables_to_render.append(table)
 
     return tables_to_render

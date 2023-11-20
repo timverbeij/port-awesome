@@ -12,12 +12,12 @@ interface Word extends ScoredTerm {
   fontSize: number
 }
 
-function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
+function VisxWordcloud ({ visualizationData }: Props): JSX.Element | null {
   const colors = ['#444', '#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60']
-  const nWords = 200
+  const nWords = 100
 
   const words: Word[] = useMemo(() => {
-    const fontRange = [15, 45]
+    const fontRange = [20, 50]
     const words = visualizationData.topTerms.slice(0, nWords)
 
     let minImportance = words[0].importance
@@ -36,7 +36,6 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
     })
   }, [visualizationData, nWords])
 
-  console.log(words)
   return (
     <ParentSize debounceTime={1000}>
       {(parent) => (
@@ -46,8 +45,8 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
           width={parent.width}
           rotate={0}
           padding={4}
-          spiral="rectangular"
-          font="Finador-Bold"
+          spiral='rectangular'
+          font='Finador-Bold'
           fontSize={(w) => w.fontSize}
           random={() => 0.5}
         >
@@ -58,7 +57,7 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
                   key={w.text}
                   fill={colors[Math.floor((i / cloudWords.length) * colors.length)]}
                   fontSize={w.size}
-                  textAnchor="middle"
+                  textAnchor='middle'
                   fontFamily={w.font}
                   transform={`translate(${w.x ?? 0}, ${w.y ?? 0}) rotate(${w.rotate ?? 0})`}
                 >
