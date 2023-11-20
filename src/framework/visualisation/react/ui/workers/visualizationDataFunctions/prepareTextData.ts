@@ -11,7 +11,7 @@ interface VocabularyStats {
   docFreq: number
 }
 
-export async function prepareTextData(
+export async function prepareTextData (
   table: PropsUITable & TableContext,
   visualization: TextVisualization
 ): Promise<TextVisualizationData> {
@@ -32,7 +32,7 @@ export async function prepareTextData(
   return visualizationData
 }
 
-function getVocabulary(
+function getVocabulary (
   texts: string[],
   values: string[] | null,
   visualization: TextVisualization
@@ -54,14 +54,14 @@ function getVocabulary(
         seen.add(token)
       }
 
-      const v = values ? Number(values[i]) ?? 1 : 1
+      const v = (values != null) ? Number(values[i]) ?? 1 : 1
       if (!isNaN(v)) vocabulary[token].value += v
     }
   }
   return vocabulary
 }
 
-function getTopTerms(
+function getTopTerms (
   vocabulary: Record<string, VocabularyStats>,
   nDocs: number,
   topTerms: number

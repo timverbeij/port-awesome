@@ -215,7 +215,7 @@ export const Table = ({
       <div
         className={`${
           tooltip.show ? '' : 'invisible'
-        } fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
+        } fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  break-all rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
         style={{ left: tooltip.x, top: tooltip.y } as any}
       >
         {tooltip.content}
