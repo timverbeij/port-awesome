@@ -6,7 +6,7 @@ import {
   ChartVisualization
 } from '../../../../../types/visualizations'
 
-export async function prepareChartData (
+export async function prepareChartData(
   table: PropsUITable & TableContext,
   visualization: ChartVisualization
 ): Promise<ChartVisualizationData> {
@@ -16,7 +16,7 @@ export async function prepareChartData (
   return createVisualizationData(visualization, aggregate)
 }
 
-function createVisualizationData (
+function createVisualizationData(
   visualization: ChartVisualization,
   aggregate: Record<string, PrepareAggregatedData>
 ): ChartVisualizationData {
@@ -50,7 +50,7 @@ function createVisualizationData (
   return visualizationData
 }
 
-function emptyVisualizationData (visualization: ChartVisualization): ChartVisualizationData {
+function emptyVisualizationData(visualization: ChartVisualization): ChartVisualizationData {
   return {
     type: visualization.type,
     xKey: {
@@ -64,7 +64,7 @@ function emptyVisualizationData (visualization: ChartVisualization): ChartVisual
   }
 }
 
-function aggregateData (
+function aggregateData(
   table: PropsUITable & TableContext,
   visualization: ChartVisualization
 ): Record<string, PrepareAggregatedData> {
@@ -74,6 +74,21 @@ function aggregateData (
   const rowIds = table.body.rows.map((row) => row.id)
   const xLabel =
     visualization.group.label !== undefined ? visualization.group.label : visualization.group.column
+
+  const anyAddZeroes = visualization.values.some((value) => value.addZeroes === true)
+  if (anyAddZeroes && xSortable != null) {
+    for (const [uniqueValue, sortby] of Object.entries(xSortable)) {
+      aggregate[uniqueValue] = {
+        sortBy: sortby,
+        rowIds: {},
+        xLabel,
+        xValue: uniqueValue,
+        values: {},
+        secondAxis: false,
+        tickerFormat: 'default'
+      }
+    }
+  }
 
   for (const value of visualization.values) {
     // loop over all y values
@@ -90,22 +105,7 @@ function aggregateData (
 
     // if missing values should be treated as zero, we need to add the missing values after knowing all groups
     const addZeroes = value.addZeroes ?? false
-    const groupSummary: Record<string, { n: number, sum: number }> = {}
-
-    // if addZeroes, prefill with all possible values
-    if (addZeroes && xSortable != null) {
-      for (const [uniqueValue, sortby] of Object.entries(xSortable)) {
-        aggregate[uniqueValue] = {
-          sortBy: sortby,
-          rowIds: {},
-          xLabel,
-          xValue: uniqueValue,
-          values: {},
-          secondAxis: value.secondAxis,
-          tickerFormat
-        }
-      }
-    }
+    const groupSummary: Record<string, { n: number; sum: number }> = {}
 
     for (let i = 0; i < rowIds.length; i++) {
       // loop over rows of table
@@ -185,10 +185,10 @@ function aggregateData (
   return aggregate
 }
 
-function prepareX (
+function prepareX(
   table: PropsUITable & TableContext,
   visualization: ChartVisualization
-): { groupBy: string[], xSortable: Record<string, string | number> | null } {
+): { groupBy: string[]; xSortable: Record<string, string | number> | null } {
   let groupBy = getTableColumn(table, visualization.group.column)
   if (groupBy.length === 0) {
     throw new Error(`X column ${table.id}.${visualization.group.column} not found`)
