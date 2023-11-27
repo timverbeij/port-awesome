@@ -156,6 +156,37 @@ def create_empty_table(platform_name: str) -> props.PropsUIPromptConsentFormTabl
 
 
 ##################################################################
+# Visualization helpers
+def create_chart(type: Literal["bar", "line", "area"], 
+                 nl_title: str, en_title: str, 
+                 x: str, y: Optional[str] = None, 
+                 x_label: Optional[str] = None, y_label: Optional[str] = None,
+                 date_format: Optional[str] = None, aggregate: str = "count"):
+    if y is None:
+        y = x
+        if aggregate != "count": 
+            raise ValueError("If y is None, aggregate must be count if y is not specified")
+        
+    return props.PropsUIChartVisualization(
+        title = props.Translatable({"en": en_title, "nl": nl_title}),
+        type = type,
+        group = props.PropsUIChartGroup(column= x, label= x_label, dateFormat= date_format),
+        values = [props.PropsUIChartValue(column= y, label= y_label, aggregate= aggregate)]       
+    )
+
+def create_wordcloud(nl_title: str, en_title: str, column: str, 
+                     tokenize: bool = False, 
+                     value_column: Optional[str] = None, 
+                     extract: Optional[Literal["url_domain"]] = None):
+    return props.PropsUITextVisualization(title = props.Translatable({"en": en_title, "nl": nl_title}),
+                                          type='wordcloud',
+                                          text_column=column,
+                                          value_column=value_column,
+                                          tokenize=tokenize,
+                                          extract=extract)
+
+
+##################################################################
 # Extraction functions
 
 def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> list[props.PropsUIPromptConsentFormTable]:
@@ -190,8 +221,10 @@ def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> lis
     df = youtube.watch_history_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube watch history", "nl": "Youtube watch history"})
-        vis = [create_wordcloud("Meest bekeken kanalen", "Most watched channels", "Channel")]
-        table =  props.PropsUIPromptConsentFormTable("youtube_watch_history", table_title, df, vis) 
+        vis = [create_chart("area", "Youtube videos bekeken", "Youtube videos watched", "Date", y_label="Aantal videos", date_format="auto"),
+               create_chart("bar", "Activiteit per uur van de dag", "Activity per hour of the day", "Date", y_label="Aantal videos", date_format="hour_cycle"),
+               create_wordcloud("Meest bekeken kanalen", "Most watched channels", "Channel")]
+        table =  props.PropsUIPromptConsentFormTable("youtube_watch_history", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     # Extract live chat messages
@@ -371,51 +404,23 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
         
     return tables_to_render
 
-def create_chart(type: Literal["bar", "line", "area"], 
-                 nl_title: str, en_title: str, 
-                 x: str, y: Optional[str] = None, 
-                 x_label: Optional[str] = None, y_label: Optional[str] = None,
-                 date_format: Optional[str] = None, aggregate: str = "count"):
-    if y is None:
-        y = x
-        if aggregate != "count": 
-            raise ValueError("If y is None, aggregate must be count if y is not specified")
-        
-    return props.PropsUIChartVisualization(
-        title = props.Translatable({"en": en_title, "nl": nl_title}),
-        type = type,
-        group = props.PropsUIChartGroup(column= x, label= x_label, dateFormat= date_format),
-        values = [props.PropsUIChartValue(column= y, label= y_label, aggregate= aggregate)]       
-    )
-
-def create_wordcloud(nl_title: str, en_title: str, column: str, 
-                     tokenize: bool = False, 
-                     value_column: Optional[str] = None, 
-                     extract: Optional[Literal["url_domain"]] = None):
-    return props.PropsUITextVisualization(title = props.Translatable({"en": en_title, "nl": nl_title}),
-                                          type='wordcloud',
-                                          text_column=column,
-                                          value_column=value_column,
-                                          tokenize=tokenize,
-                                          extract=extract)
-
-
 def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
 
     df = chrome.browser_history_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome browser history", "nl": "Chrome browser history"})
-        vis = [create_chart("area", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="URLs", date_format="auto"),
+        vis = [create_chart("area", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="Aantal URLs geopend", date_format="auto"),
+               create_chart("bar", "Activiteit per uur van de dag", "Activity per hour of the day", "Date", y_label='Aantal URLs geopend', date_format="hour_cycle"),
                create_wordcloud("Meest bezochte websites", "Most visited websites", "Url", extract='url_domain')]
-        table =  props.PropsUIPromptConsentFormTable("chrome_browser_history", table_title, df, vis) 
+        table =  props.PropsUIPromptConsentFormTable("chrome_browser_history", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = chrome.bookmarks_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome bookmarks", "nl": "Chrome bookmarks"})
-        vis = [create_wordcloud("Meest voorkomende woorden in bookmarks", "Most common words in bookmarks", "Bookmark", tokenize=True)]
-        table =  props.PropsUIPromptConsentFormTable("chrome_bookmarks", table_title, df, vis) 
+        vis = [create_wordcloud("Meest voorkomende websites in bookmarks", "Most common websites in bookmarks", "Url", extract='url_domain')]
+        table =  props.PropsUIPromptConsentFormTable("chrome_bookmarks", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = chrome.omnibox_to_df(chrome_zip)
@@ -445,8 +450,8 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram posts viewed", "nl": "Instagram posts viewed"})
-        vis = [create_chart("line", "Instagram posts bekeken", "Instagram posts viewed", "Date", y_label="Posts", date_format="auto")]
-        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, vis) 
+        vis = [create_chart("area", "Instagram posts bekeken", "Instagram posts viewed", "Date", y_label="Posts", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = instagram.posts_not_interested_in_to_df(instagram_zip)
@@ -458,15 +463,15 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.videos_watched_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram videos_watched", "nl": "Instagram posts videos_watched"})
-        vis = [create_chart("line", "Instagram videos bekeken", "Instagram videos watched", "Date", y_label="Videos", date_format="auto")]
-        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df, vis) 
+        vis = [create_chart("area", "Instagram videos bekeken", "Instagram videos watched", "Date", y_label="Videos", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = instagram.post_comments_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram post_comments", "nl": "Instagram posts post_comments"})
         vis = [create_wordcloud("Meest voorkomende woorden in comments", "Most common words in comments", "Comment", tokenize=True)]
-        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df, vis) 
+        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = instagram.following_to_df(instagram_zip)
@@ -478,15 +483,15 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.liked_comments_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram liked_comments", "nl": "Instagram posts liked_comments"})
-        vis = [create_chart("line", "Instagram comments geliked", "Instagram comments liked", "Date", y_label="Comments", date_format="auto")]
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, vis) 
+        vis = [create_chart("area", "Instagram comments geliked", "Instagram comments liked", "Date", y_label="Comments", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = instagram.liked_posts_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram liked_posts", "nl": "Instagram posts liked_posts"})
-        vis = [create_chart("line", "Instagram posts geliked", "Instagram posts liked", "Date", y_label="Posts", date_format="auto")]
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, vis) 
+        vis = [create_chart("area", "Instagram posts geliked", "Instagram posts liked", "Date", y_label="Posts", date_format="auto")]
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     return tables_to_render
