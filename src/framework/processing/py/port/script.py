@@ -406,7 +406,7 @@ def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTab
     df = chrome.browser_history_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome browser history", "nl": "Chrome browser history"})
-        vis = [create_chart("line", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="URLs", date_format="auto"),
+        vis = [create_chart("area", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="URLs", date_format="auto"),
                create_wordcloud("Meest bezochte websites", "Most visited websites", "Url", extract='url_domain')]
         table =  props.PropsUIPromptConsentFormTable("chrome_browser_history", table_title, df, vis) 
         tables_to_render.append(table)
