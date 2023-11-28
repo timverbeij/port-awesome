@@ -238,6 +238,7 @@ function Cell({
 }): JSX.Element {
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
+  const isUrl = /^https?:\/\//.test(cell)
 
   const searchWords = useMemo(() => {
     return [search]
@@ -250,6 +251,7 @@ function Cell({
   }, [textRef])
 
   function onSetTooltip(): void {
+    if (isUrl) return
     if (textRef.current == null) return
     if (!overflows) return
 
@@ -287,14 +289,25 @@ function Cell({
         ref={textRef}
         className="whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10"
       >
-        <Highlighter
-          searchWords={searchWords}
-          autoEscape
-          textToHighlight={cell}
-          highlightClassName="bg-tertiary rounded-sm"
-        />
+        {isUrl ? (
+          <a href={cell} className="text-primary" target="_blank" rel="noopener noreferrer">
+            <Highlighter
+              searchWords={searchWords}
+              autoEscape
+              textToHighlight={cell}
+              highlightClassName="bg-tertiary rounded-sm"
+            />
+          </a>
+        ) : (
+          <Highlighter
+            searchWords={searchWords}
+            autoEscape
+            textToHighlight={cell}
+            highlightClassName="bg-tertiary rounded-sm"
+          />
+        )}
       </div>
-      {overflows && <TooltipIcon />}
+      {overflows && !isUrl && <TooltipIcon />}
     </div>
   )
 }
