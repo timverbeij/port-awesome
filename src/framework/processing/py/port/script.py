@@ -161,7 +161,7 @@ def create_chart(type: Literal["bar", "line", "area"],
                  nl_title: str, en_title: str, 
                  x: str, y: Optional[str] = None, 
                  x_label: Optional[str] = None, y_label: Optional[str] = None,
-                 date_format: Optional[str] = None, aggregate: str = "count"):
+                 date_format: Optional[str] = None, aggregate: str = "count", addZeroes: bool = False):
     if y is None:
         y = x
         if aggregate != "count": 
@@ -171,7 +171,7 @@ def create_chart(type: Literal["bar", "line", "area"],
         title = props.Translatable({"en": en_title, "nl": nl_title}),
         type = type,
         group = props.PropsUIChartGroup(column= x, label= x_label, dateFormat= date_format),
-        values = [props.PropsUIChartValue(column= y, label= y_label, aggregate= aggregate)]       
+        values = [props.PropsUIChartValue(column= y, label= y_label, aggregate= aggregate, addZeroes= addZeroes)]       
     )
 
 def create_wordcloud(nl_title: str, en_title: str, column: str, 
@@ -410,8 +410,8 @@ def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTab
     df = chrome.browser_history_to_df(chrome_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Chrome browser history", "nl": "Chrome browser history"})
-        vis = [create_chart("area", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="Aantal URLs geopend", date_format="auto"),
-               create_chart("bar", "Activiteit per uur van de dag", "Activity per hour of the day", "Date", y_label='Aantal URLs geopend', date_format="hour_cycle"),
+        vis = [create_chart("area", "Chrome internet activiteit", "Chrome internet activity", "Date", y_label="Aantal URLs geopend", date_format="auto", addZeroes=True),
+               create_chart("bar", "Activiteit per uur van de dag", "Activity per hour of the day", "Date", y_label='Aantal URLs geopend', date_format="hour_cycle", addZeroes=True),
                create_wordcloud("Meest bezochte websites", "Most visited websites", "Url", extract='url_domain')]
         table =  props.PropsUIPromptConsentFormTable("chrome_browser_history", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
