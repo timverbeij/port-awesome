@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 
 import port.unzipddp as unzipddp
+import port.helpers as helpers
 
 from port.validate import (
     DDPCategory,
@@ -118,6 +119,14 @@ def validate(zfile: Path) -> ValidateInput:
 
     return validation
 
+
+def try_to_convert_datetime_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
+    try:
+        df[date_column] = df[date_column].apply(helpers.convert_datetime_str)
+    except Exception as e:
+        logger.debug("Exception was caught:  %s", e)
+
+    return df
 
 # Extract my-comments.html
 def bytes_to_soup(buf: io.BytesIO) -> BeautifulSoup:
@@ -284,6 +293,8 @@ def watch_history_to_df(youtube_zip: str, validation: ValidateInput) -> pd.DataF
 
         html_bytes_buf = unzipddp.extract_file_from_zip(youtube_zip, file_name)
         out = watch_history_extract_html(html_bytes_buf)
+        out["Date standard format"] = out["Date"].apply(helpers.try_to_convert_any_timestamp_to_iso8601)
+
     else:
         out = pd.DataFrame([("Er zit wel data in jouw data package, maar we hebben het er niet uitgehaald")], columns=["Extraction not implemented"])
 
