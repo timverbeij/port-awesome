@@ -153,7 +153,7 @@ def omnibox_to_df(chrome_zip: str) -> pd.DataFrame:
             ))
 
         out = pd.DataFrame(datapoints, columns=["Title", "Number of visits", "Url"])
-        out = out.sort_values(by="Number of visits", ascending=False)
+        out = out.sort_values(by="Number of visits", ascending=False).reset_index()
     except Exception as e:
         logger.error("Exception caught: %s", e)
 

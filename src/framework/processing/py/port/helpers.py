@@ -5,6 +5,7 @@ import math
 import logging
 import re
 
+from dateutil.parser import parse
 import pandas as pd
 import numpy as np
 
@@ -158,65 +159,6 @@ def epoch_to_iso(epoch_timestamp: str | int) -> str:
 
     return out
 
-
-def convert_datetime_str(datetime_str: list[str] | list[int]) -> pd.DatetimeIndex | None:
-    """
-    If timestamps are ISO 8601 return those
-    If timestamps are ints (epochtime) return those
-
-    If first ambigous non NaN timestamps is encoutered
-    (and can be detected with infer_datetime_format=True and dayfirst-True)
-    every timestamp is interpreted as DD/MM/YYYY if possible,
-    if resulting in incorrect timestamp, then MM/DD/YYYY is used,
-    converting format is silently switched
-
-    If first non-ambigous non NaN timestamps is encoutered
-    (and can be detected with infer_datetime_format=True and dayfirst-True)
-    every timestamp is interpreted as either DD/MM/YYYY or MM/DD/YYYY depending on the first timestamp
-    If the other format is encountered, that would result in an error, format is silently switched
-
-    If timestamp format cannot be detected with infer_datetime_format
-    dateutils.parser.parse() is used with dayfirst is true setting
-    Interpretering everything as DD/MM/YYYY except if that results in an impossible date,
-    then MM/DD/YYYY is used
-
-    YYYY/MM/DD formats not ISO 8601 will be interpreted incorrectly, as YYYY/DD/MM if possible
-
-    Note 1: to_datetime will be rewritten in a future pandas release
-    Also to_datetime, guess_datetime_format will be made available in pandas.tools
-    The silent format changes will be changed.
-
-    Note 2: This is a very complicated problem to solve, solving this problem myself is too difficult
-    for what I might expect to gain in accuracy
-
-    Note 3: if time is converted from epoch utc is used
-
-    Concluding: Although a lot can go wrong, I expect the impact will be minor,
-    When american formats are encourted regularly things will go wrong most often
-    """
-    out = None
-    try:
-        if is_isoformat(datetime_str, 10):
-            out = pd.to_datetime(datetime_str)
-
-        elif is_isoformat(datetime_str, 10, date_only=True):
-            out = pd.to_datetime(datetime_str)
-
-        elif is_epoch(datetime_str, 10):
-            out = pd.to_datetime(datetime_str, unit="s")
-
-        else:
-            out = pd.to_datetime(
-                datetime_str, infer_datetime_format=True, dayfirst=True
-            )
-
-    except (ValueError, TypeError, OverflowError) as e:
-        logger.error("Could not convert timestamps: %s", e)
-
-    finally:
-        return out
-
-
 def dict_denester(
     inp: dict[Any, Any] | list[Any],
     new: dict[Any, Any] | None = None,
@@ -323,3 +265,40 @@ def fix_latin1_string(input: str) -> str:
         return fixed_string
     except Exception:
         return input
+
+
+def try_to_convert_any_timestamp_to_iso8601(timestamp: str) -> str:
+    """
+    WARNING 
+
+    Use this function with caution and only as a last resort
+    Conversion can go wrong when datetime formats are ambiguous
+    When ambiguity occurs it chooses MM/DD instead of DD/MM
+
+    Checkout: dateutil.parsers parse
+    """
+    timestamp = replace_months(timestamp)
+    try:
+       timestamp = parse(timestamp, dayfirst=False).isoformat()
+    except Exception as e:
+        timestamp = ""
+    return timestamp
+
+
+def replace_months(input_string):
+
+    month_mapping = {
+        'mrt': 'mar',
+        'mei': 'may',
+        'okt': 'oct',
+    }
+
+    for dutch_month, english_month in month_mapping.items():
+        if dutch_month in input_string:
+            replaced_string = input_string.replace(dutch_month, english_month, 1)
+            return replaced_string
+
+    return input_string
+
+
+
