@@ -291,6 +291,31 @@ def your_posts_to_df(facebook_zip: str) -> pd.DataFrame:
     return out
 
 
+def your_posts_check_ins_photos_and_videos_1_to_df(facebook_zip: str) -> pd.DataFrame:
+
+    b = unzipddp.extract_file_from_zip(facebook_zip, "your_posts__check_ins__photos_and_videos_1.json")
+    d = unzipddp.read_json_from_bytes(b)
+
+    out = pd.DataFrame()
+    datapoints = []
+
+    try:
+        for item in d:
+            denested_dict = helpers.dict_denester(item)
+
+            datapoints.append((
+                find_items(denested_dict, "title"),
+                find_items(denested_dict, "post"),
+                helpers.epoch_to_iso(find_items(denested_dict, "timestamp")),
+                find_items(denested_dict, "url"),
+            ))
+
+        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date", "Url"])
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+
+    return out
+
 
 def your_search_history_to_df(facebook_zip: str) -> pd.DataFrame:
 
@@ -442,6 +467,10 @@ def group_posts_and_comments_to_df(facebook_zip: str) -> pd.DataFrame:
     b = unzipddp.extract_file_from_zip(facebook_zip, "group_posts_and_comments.json")
     d = unzipddp.read_json_from_bytes(b)
 
+    if not d:
+        b = unzipddp.extract_file_from_zip(facebook_zip, "your_posts_in_groups.json")
+        d = unzipddp.read_json_from_bytes(b)
+
     out = pd.DataFrame()
     datapoints = []
 
@@ -458,7 +487,7 @@ def group_posts_and_comments_to_df(facebook_zip: str) -> pd.DataFrame:
                 find_items(denested_dict, "url"),
             ))
 
-        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date", "Url"])
+        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Comment", "Date", "Url"])
     except Exception as e:
         logger.error("Exception caught: %s", e)
 

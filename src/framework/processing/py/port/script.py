@@ -221,8 +221,8 @@ def extract_youtube(youtube_zip: str, validation: validate.ValidateInput) -> lis
     df = youtube.watch_history_to_df(youtube_zip, validation)
     if not df.empty:
         table_title = props.Translatable({"en": "Youtube watch history", "nl": "Youtube watch history"})
-        vis = [create_chart("area", "Youtube videos bekeken", "Youtube videos watched", "Date", y_label="Aantal videos", date_format="auto"),
-               create_chart("bar", "Activiteit per uur van de dag", "Activity per hour of the day", "Date", y_label="Aantal videos", date_format="hour_cycle"),
+        vis = [create_chart("area", "Youtube videos bekeken", "Youtube videos watched", "Date standard format", y_label="Aantal videos", date_format="auto"),
+               create_chart("bar", "Activiteit per uur van de dag", "Activity per hour of the day", "Date standard format", y_label="Aantal videos", date_format="hour_cycle"),
                create_wordcloud("Meest bekeken kanalen", "Most watched channels", "Channel")]
         table =  props.PropsUIPromptConsentFormTable("youtube_watch_history", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
@@ -402,6 +402,12 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
         table =  props.PropsUIPromptConsentFormTable("facebook_group_posts_and_comments", table_title, df) 
         tables_to_render.append(table)
         
+    df = facebook.your_posts_check_ins_photos_and_videos_1_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook your posts check ins photos and videos", "nl": "Facebook group posts and comments"})
+        table =  props.PropsUIPromptConsentFormTable("facebook_your_posts_check_ins_photos_and_videos", table_title, df) 
+        tables_to_render.append(table)
+
     return tables_to_render
 
 def extract_chrome(chrome_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
@@ -510,12 +516,6 @@ def extract_linkedin(zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin member_follows", "nl": "Linkedin member_follows"})
         table =  props.PropsUIPromptConsentFormTable("linkedin_member_follows", table_title, df) 
-        tables_to_render.append(table)
-
-    df = linkedin.connections_to_df(zip)
-    if not df.empty:
-        table_title = props.Translatable({"en": "Linkedin connections", "nl": "Linkedin connections"})
-        table =  props.PropsUIPromptConsentFormTable("linkedin_connections", table_title, df) 
         tables_to_render.append(table)
 
     df = linkedin.reactions_to_df(zip)
