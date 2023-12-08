@@ -28,7 +28,9 @@ def extract_file_from_zip(zfile: str, file_to_extract: str) -> io.BytesIO:
             file_found = False
 
             for f in zf.namelist():
-                logger.debug("Contained in zip: %s", f)
+                # skipping this log because for twitter (with huge nr of files)
+                # the console logs greatly slow down the browser
+                # logger.debug("Contained in zip: %s", f)
                 if Path(f).name == file_to_extract:
                     #print('extract_file_from_zip found a message json', f)
 
