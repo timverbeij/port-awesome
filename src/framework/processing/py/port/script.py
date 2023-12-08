@@ -302,14 +302,16 @@ def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormT
 
     df = twitter.like_to_df(twitter_zip)
     if not df.empty:
+        vis = [create_wordcloud("Liked Tweets", "Liked Tweets", "Tweet", tokenize=True)]
         table_title = props.Translatable({"en": "Twitter likes", "nl": "Twitter likes"})
-        table =  props.PropsUIPromptConsentFormTable("twitter_like", table_title, df) 
+        table =  props.PropsUIPromptConsentFormTable("twitter_like", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = twitter.tweets_to_df(twitter_zip)
     if not df.empty:
+        vis = [create_wordcloud("Eigen Tweets", "Own Tweets", "Tweet", tokenize=True)]
         table_title = props.Translatable({"en": "Twitter tweets", "nl": "Twitter tweets"})
-        table =  props.PropsUIPromptConsentFormTable("twitter_tweets", table_title, df) 
+        table =  props.PropsUIPromptConsentFormTable("twitter_tweets", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = twitter.user_link_clicks_to_df(twitter_zip)
@@ -456,7 +458,10 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram posts viewed", "nl": "Instagram posts viewed"})
-        vis = [create_chart("area", "Instagram posts bekeken", "Instagram posts viewed", "Date", y_label="Posts", date_format="auto")]
+        vis = [
+            create_chart("area", "Instagram posts bekeken", "Instagram posts viewed", "Date", y_label="Posts", date_format="auto"),
+            create_chart("bar", "Hoe laat bekijk jij Instagram posts", "At what time do you view Instagram posts", "Date", y_label="Posts per uur", date_format="hour_cycle")
+            ]
         table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
