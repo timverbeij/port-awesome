@@ -25,7 +25,7 @@ export const TableContainer = ({
   const tableVisualizations = table.visualizations != null ? table.visualizations : []
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
   const [search, setSearch] = useState<string>('')
-  const lastSearch = useRef<string>('')
+  const autoOpen = useRef<boolean>(true)
   const text = useMemo(() => getTranslations(locale), [locale])
   const [show, setShow] = useState<boolean>(false)
 
@@ -33,11 +33,13 @@ export const TableContainer = ({
     const timer = setTimeout(() => {
       const ids = searchRows(table.originalBody.rows, search)
       setSearchFilterIds(ids)
-      if (search !== '' && lastSearch.current === '') setTimeout(() => setShow(true), 10)
-      lastSearch.current = search
+      if (search !== '' && autoOpen.current) {
+        autoOpen.current = false
+        setTimeout(() => setShow(true), 10)
+      }
     }, 300)
     return () => clearTimeout(timer)
-  }, [search, lastSearch])
+  }, [search])
 
   const searchedTable = useMemo(() => {
     if (searchFilterIds === undefined) return table

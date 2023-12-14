@@ -41,7 +41,7 @@ function createVisualizationData(
 
       return {
         ...d.values,
-        [d.xLabel]: d.xValue,
+        __x: d.xValue,
         __rowIds: d.rowIds,
         __sortBy: d.sortBy
       }
@@ -182,6 +182,7 @@ function aggregateData(
     })
   }
 
+  console.log(aggregate)
   return aggregate
 }
 

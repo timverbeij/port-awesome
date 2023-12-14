@@ -144,7 +144,7 @@ def group_interactions_to_df(facebook_zip: str) -> pd.DataFrame:
         for item in items:
             datapoints.append((
                 item.get("data", {}).get("name", None),
-                item.get("data", {}).get("value", None),
+                item.get("data", {}).get("value", '').split(" ")[0],
                 item.get("data", {}).get("uri", None)
             ))
         out = pd.DataFrame(datapoints, columns=["Group name", "Times Interacted", "Group Link"])

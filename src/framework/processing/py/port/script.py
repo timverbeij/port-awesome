@@ -161,7 +161,7 @@ def create_chart(type: Literal["bar", "line", "area"],
                  nl_title: str, en_title: str, 
                  x: str, y: Optional[str] = None, 
                  x_label: Optional[str] = None, y_label: Optional[str] = None,
-                 date_format: Optional[str] = None, aggregate: str = "count", addZeroes: bool = False):
+                 date_format: Optional[str] = None, aggregate: str = "count", addZeroes: bool = True):
     if y is None:
         y = x
         if aggregate != "count": 
@@ -341,19 +341,22 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
     df = facebook.group_interactions_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook group interactions", "nl": "Facebook group interactions"})
-        table =  props.PropsUIPromptConsentFormTable("facebook_group_interactions", table_title, df) 
+        vis = [create_wordcloud("Groepen met meeste interacties", "Groups with most interactions", "Group name", value_column="Times Interacted")]
+        table =  props.PropsUIPromptConsentFormTable("facebook_group_interactions", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = facebook.comments_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook comments", "nl": "Facebook comments"})
-        table =  props.PropsUIPromptConsentFormTable("facebook_comments", table_title, df) 
+        vis = [create_wordcloud("Meest voorkomende woorden in comments", "Most common words in comments", "Comment", tokenize=True)]
+        table =  props.PropsUIPromptConsentFormTable("facebook_comments", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = facebook.likes_and_reactions_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook likes and reactions", "nl": "Facebook likes and reactions"})
-        table =  props.PropsUIPromptConsentFormTable("facebook_likes_and_reactions", table_title, df) 
+        vis = [create_chart('bar', "Meest gebruikte reacties", "Most used reactions", "Reaction")]
+        table =  props.PropsUIPromptConsentFormTable("facebook_likes_and_reactions", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = facebook.your_badges_to_df(facebook_zip)
@@ -371,7 +374,8 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
     df = facebook.your_search_history_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook your searh history", "nl": "Facebook your search history"})
-        table =  props.PropsUIPromptConsentFormTable("facebook_your_search_history", table_title, df) 
+        vis = [create_wordcloud("Meest gebruikte zoektermen", "Most used search terms", "Search Term", tokenize=True)]
+        table =  props.PropsUIPromptConsentFormTable("facebook_your_search_history", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = facebook.recently_viewed_to_df(facebook_zip)
@@ -526,7 +530,8 @@ def extract_linkedin(zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     df = linkedin.reactions_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin reactions", "nl": "Linkedin reactions"})
-        table =  props.PropsUIPromptConsentFormTable("linkedin_reactions", table_title, df) 
+        vis = [create_chart('bar', "LinkedIn Reactions", "Linkedin Reactions", "Type")]
+        table =  props.PropsUIPromptConsentFormTable("linkedin_reactions", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = linkedin.ads_clicked_to_df(zip)
@@ -538,7 +543,8 @@ def extract_linkedin(zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     df = linkedin.search_queries_to_df(zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Linkedin search_queries", "nl": "Linkedin search_queries"})
-        table =  props.PropsUIPromptConsentFormTable("linkedin_search_queries", table_title, df) 
+        vis = [create_wordcloud("Meest gebruikte zoektermen", "Most used search terms", "Search Query", tokenize=True)]
+        table =  props.PropsUIPromptConsentFormTable("linkedin_search_queries", table_title, df, visualizations=vis) 
         tables_to_render.append(table)
 
     df = linkedin.shares_to_df(zip)

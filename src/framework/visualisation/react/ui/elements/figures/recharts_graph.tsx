@@ -23,6 +23,7 @@ interface Props {
 }
 
 export default function RechartsGraph({ visualizationData }: Props): JSX.Element | null {
+  console.log(visualizationData)
   function tooltip(): JSX.Element {
     return (
       <Tooltip
@@ -50,7 +51,7 @@ export default function RechartsGraph({ visualizationData }: Props): JSX.Element
 
     return (
       <>
-        <XAxis dataKey={visualizationData.xKey.label} minTickGap={minTickGap} />
+        <XAxis dataKey={'__x'} minTickGap={minTickGap} />
         <YAxis yAxisId="left" tickFormatter={tickFormatter} />
         {secondary && <YAxis yAxisId="right" orientation="right" tickFormatter={tickFormatter2} />}
       </>
