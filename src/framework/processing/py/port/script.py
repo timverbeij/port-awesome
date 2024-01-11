@@ -17,7 +17,7 @@ import port.chrome as chrome
 import port.instagram as instagram
 import port.linkedin as linkedin
 
-from port.api.commands import (CommandSystemDonate, CommandUIRender)
+from port.api.commands import (CommandSystemDonate, CommandUIRender, CommandSystemExit)
 
 LOG_STREAM = io.StringIO()
 
@@ -119,6 +119,7 @@ def process(session_id):
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
                 yield donate_logs(f"{session_id}-tracking")
 
+    yield exit(0, "Success")
     yield render_end_page()
 
 
@@ -602,3 +603,6 @@ def prompt_file(extensions, platform):
 
 def donate(key, json_string):
     return CommandSystemDonate(key, json_string)
+
+def exit(code, info):
+    return CommandSystemExit(code, info)
