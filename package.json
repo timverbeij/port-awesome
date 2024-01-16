@@ -38,7 +38,7 @@
     "start": "concurrently 'npm run start:py' 'npm run start:app'",
     "build": "npm run build:py && npm run build:app && npm run build:css",
     "archive": "cd build && zip -r ../release.zip .",
-    "archive_output": "cd build && zip -r ../release-$PLATFORM.zip .",
+    "release_platform": "npm run build && cd build && zip -r ../release-$PLATFORM.zip .",
     "release": "npm run build && npm run archive",
     "test": "react-scripts test",
     "lint": "npm run fix:ts",
