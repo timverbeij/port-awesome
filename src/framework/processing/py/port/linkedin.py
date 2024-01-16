@@ -97,6 +97,7 @@ def company_follows_to_df(linkedin_zip: str) -> pd.DataFrame:
     'Company Follows.csv'
     """
     filename = "Company Follows.csv"
+
     b = unzipddp.extract_file_from_zip(linkedin_zip, filename)
     df = unzipddp.read_csv_from_bytes_to_df(b)
 
@@ -109,11 +110,13 @@ def member_follows_to_df(linkedin_zip: str) -> pd.DataFrame:
     """
     filename = "Member_Follows.csv"
     b = unzipddp.extract_file_from_zip(linkedin_zip, filename)
-
-    # remove zero or more any chars (including linebreaks) non greedy up to and including 2 consequetive line breaks
-    b = io.BytesIO(re.sub(b'^((?s).)*?\n\n', b'', b.read()))
-
-    df = unzipddp.read_csv_from_bytes_to_df(b)
+    df = pd.DataFrame()
+    try:
+        # remove zero or more any chars (including linebreaks) non greedy up to and including 2 consequetive line breaks
+        b = io.BytesIO(re.sub(b'^((?s).)*?\n\n', b'', b.read()))
+        df = unzipddp.read_csv_from_bytes_to_df(b)
+    except:
+        pass
 
     return df
 

@@ -45,6 +45,14 @@ def process(session_id):
         ("Twitter", extract_twitter, twitter.validate),
     ]
 
+    #platforms = [ ("LinkedIn", extract_linkedin, linkedin.validate), ]
+    #platforms = [ ("Instagram", extract_instagram, instagram.validate), ]
+    #platforms = [ ("Chrome", extract_chrome, chrome.validate), ]
+    #platforms = [ ("Facebook", extract_facebook, facebook.validate), ]
+    #platforms = [ ("Youtube", extract_youtube, youtube.validate), ]
+    #platforms = [ ("TikTok", extract_tiktok, tiktok.validate), ]
+    #platforms = [ ("Twitter", extract_twitter, twitter.validate), ]
+
     # progress in %
     subflows = len(platforms)
     steps = 2
