@@ -269,6 +269,8 @@ def your_posts_to_df(facebook_zip: str) -> pd.DataFrame:
 
     b = unzipddp.extract_file_from_zip(facebook_zip, "your_posts_1.json")
     d = unzipddp.read_json_from_bytes(b)
+    if isinstance(d, dict) == True:
+        d = [d]
 
     out = pd.DataFrame()
     datapoints = []

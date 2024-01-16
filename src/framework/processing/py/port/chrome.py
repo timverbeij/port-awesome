@@ -41,6 +41,22 @@ DDP_CATEGORIES = [
             "SyncSettings.json",
         ],
     ),
+    DDPCategory(
+        id="json_nl",
+        ddp_filetype=DDPFiletype.JSON,
+        language=Language.NL,
+        known_files=[
+            "Adressen en meer.json",
+            "Bookmarks.html",
+            "Geschiedenis.json",
+            "Leeslijst.html",
+            "Woordenboek.csv",
+            "Apparaatgegevens.json",
+            "Extensies.json",
+            "Instellingen.json",
+            "OS-instellingen.json",
+        ],
+    ),
 ]
 
 
@@ -87,8 +103,16 @@ def validate(zfile: Path) -> ValidateInput:
 # Extract BrowserHistory
 def browser_history_to_df(chrome_zip: str) -> pd.DataFrame:
 
-    b = unzipddp.extract_file_from_zip(chrome_zip, "BrowserHistory.json")
+    b = unzipddp.extract_file_from_zip(chrome_zip, "Geschiedenis.json")
     d = unzipddp.read_json_from_bytes(b)
+
+    if not d:
+        b = unzipddp.extract_file_from_zip(chrome_zip, "BrowserHistory.json")
+        d = unzipddp.read_json_from_bytes(b)
+
+    if not d:
+        b = unzipddp.extract_file_from_zip(chrome_zip, "History.json")
+        d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
     datapoints = []
@@ -158,3 +182,5 @@ def omnibox_to_df(chrome_zip: str) -> pd.DataFrame:
         logger.error("Exception caught: %s", e)
 
     return out
+
+
