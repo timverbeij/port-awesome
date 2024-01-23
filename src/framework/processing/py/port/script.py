@@ -1,5 +1,3 @@
-##EMPTY DICS NOT WORKING!###
-
 import logging
 import json
 import io
@@ -35,38 +33,11 @@ def process(session_id):
     yield donate_logs(f"{session_id}-tracking")
 
     platform_name = "TikTok"
-    foutje = "Er gaat iets mis"
     validation_fun = tiktok.validate
 
     extract_funs = [extract_tiktok_essential]
-
-    # extract_funs = [extract_tiktok_follow, #2 
-    #                 extract_tiktok_follower, #3
-    #                 extract_tiktok_following, #4
-    #                 extract_tiktok_browsing, #5
-    #                 extract_tiktok_search, #6
-    #                 extract_tiktok_log, #7
-    #                 extract_tiktok_live] #8
     
-    extract_funs_anon = [None, #1
-                         None, #2
-                         None, #3
-                         None, #4
-                         None, #5
-                         extract_tiktok_search_anon, #6 
-                         None, #7
-                         None] #8
-    
-    descr_funs = ["all tiktok data", #1
-    "follow", #2
-    "follower", #3
-    "following", #4
-    "browsing-geschiedenis", #5
-    "zoekgeschiedenis", #6
-    "login-geschiedenis", #7
-    "live"] #8
-
-    # # progress in %
+    # # progress in % NOG AANPASSEN
     subflows = 1
     steps = 3
     step_percentage = (100 / subflows) / steps
@@ -229,25 +200,25 @@ def assemble_tables_into_form(table_list: list[props.PropsUIPromptConsentFormTab
     return props.PropsUIPromptConsentForm(table_list, [])
 
 
-def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
-    """
-    This function chunks extracted data into tables of 5000 rows that can be renderd on screen
-    """
+# def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
+#     """
+#     This function chunks extracted data into tables of 5000 rows that can be renderd on screen
+#     """
 
-    df_list = helpers.split_dataframe(df, 5000)
-    out = []
+#     df_list = helpers.split_dataframe(df, 5000)
+#     out = []
 
-    if len(df_list) == 1:
-        table = props.PropsUIPromptConsentFormTable(unique_table_id, title, df_list[0])
-        out.extend(table)
-    else:
-        for i, df in enumerate(df_list):
-            index = i + 1
-            title_with_index = props.Translatable({lang: f"{val} {index}" for lang, val in title.translations.items()})
-            table = props.PropsUIPromptConsentFormTable(f"{unique_table_id}_{index}", title_with_index, df)
-            out.extend(table)
+#     if len(df_list) == 1:
+#         table = props.PropsUIPromptConsentFormTable(unique_table_id, title, df_list[0])
+#         out.extend(table)
+#     else:
+#         for i, df in enumerate(df_list):
+#             index = i + 1
+#             title_with_index = props.Translatable({lang: f"{val} {index}" for lang, val in title.translations.items()})
+#             table = props.PropsUIPromptConsentFormTable(f"{unique_table_id}_{index}", title_with_index, df)
+#             out.extend(table)
 
-    return out
+#     return out
 
 def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
     """
