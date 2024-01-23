@@ -216,19 +216,13 @@ function prepareCopy({ locale }: Props): Copy {
 }
 
 const donateQuestionLabel = new TextBundle()
-  .add('en', 'Do you want to donate the above data?')
-  .add('nl', 'Wilt u de bovenstaande gegevens doneren?')
+  .add('en', 'Wil je deze data met ons delen?')
+  .add('nl', 'Wil je deze data met ons delen?')
 
-const donateButtonLabel = new TextBundle().add('en', 'Yes, donate').add('nl', 'Ja, doneer')
+const donateButtonLabel = new TextBundle().add('en', 'Ja, doneer').add('nl', 'Ja, doneer')
 
-const cancelButtonLabel = new TextBundle().add('en', 'No').add('nl', 'Nee')
+const cancelButtonLabel = new TextBundle().add('en', 'Nee').add('nl', 'Nee')
 
 const description = new TextBundle()
-  .add(
-    'en',
-    'Determine whether you would like to donate the data below. Carefully check the data and adjust when required. With your donation you contribute to the previously described research. Thank you in advance.'
-  )
-  .add(
-    'nl',
-    'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.'
-  )
+  .add('en', 'Hier kan je de data checken die wij graag van jou willen. Je kan je data doneren door naar beneden te scrollen en op de "Ja, doneer" knop te drukken. Of druk op "Nee" als je niet de data met ons wilt delen.')
+  .add('nl', 'Hier kan je de data checken die wij graag van jou willen. Je kan je data doneren door naar beneden te scrollen en op de "Ja, doneer" knop te drukken. Of druk op "Nee" als je niet de data met ons wilt delen.')

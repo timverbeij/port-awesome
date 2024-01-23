@@ -243,7 +243,7 @@ function getTranslations(locale: string): Record<string, string> {
 }
 
 const translations = {
-  searchPlaceholder: new TextBundle().add('en', 'Search').add('nl', 'Zoeken'),
-  showTable: new TextBundle().add('en', 'Show table').add('nl', 'Tabel tonen'),
-  hideTable: new TextBundle().add('en', 'Hide table').add('nl', 'Tabel verbergen')
+  searchPlaceholder: new TextBundle().add('en', 'Zoeken').add('nl', 'Zoeken'),
+  showTable: new TextBundle().add('en', 'Ik wil de tabel zien').add('nl', 'Ik wil de tabel zien'),
+  hideTable: new TextBundle().add('en', 'Ik wil de tabel niet meer zien').add('nl', 'Ik wil de tabel niet meer zien')
 }
