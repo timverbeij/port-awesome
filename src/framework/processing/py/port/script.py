@@ -733,17 +733,17 @@ def extract_tiktok_search_anon(tiktok_file: str, validation: validate.ValidateIn
     return tables_to_render
 
 
-def extract_tiktok_log2(tiktok_file: str, validation: validate.ValidateInput) -> list[props.PropsUIPromptConsentFormTable]:
-    tables_to_render = []
+# def extract_tiktok_log2(tiktok_file: str, validation: validate.ValidateInput) -> list[props.PropsUIPromptConsentFormTable]:
+#     tables_to_render = []
 
-    df = tiktok.logging_in_to_df2(tiktok_file, validation)
+#     df = tiktok.logging_in_to_df2(tiktok_file, validation)
 
-    if not df.empty:
-        table_title = props.Translatable({"en": "Login geschiedenis",  "nl": "Login geschiedenis"})
-        tables = create_consent_form_tables("Login geschiedenis", table_title, df) 
-        tables_to_render.extend(tables)
+#     if not df.empty:
+#         table_title = props.Translatable({"en": "Login geschiedenis",  "nl": "Login geschiedenis"})
+#         tables = create_consent_form_tables("Login geschiedenis", table_title, df) 
+#         tables_to_render.extend(tables)
 
-    return tables_to_render
+#     return tables_to_render
 
 #test
 # def summary(tiktok_file: str, validation: validate.ValidateInput) -> list[props.PropsUIPromptConsentFormTable]:
